@@ -5,6 +5,7 @@ using EcsRx.Systems.Executor;
 using EcsRx.Systems.Executor.Handlers;
 using UniRx;
 using Zenject;
+using EcsRx.Groups;
 
 namespace EcsRx.Unity.Installers
 {
@@ -16,6 +17,8 @@ namespace EcsRx.Unity.Installers
             Container.Bind<IEventSystem>().To<EventSystem>().AsSingle();
             Container.Bind<IIdentityGenerator>().To<SequentialIdentityGenerator>().AsSingle();
             Container.Bind<IPoolManager>().To<PoolManager>().AsSingle();
+
+			Container.Bind<IReactiveGroup> ().To<ReactiveGroup> ();
 
             Container.Bind<IReactToDataSystemHandler>().To<ReactToDataSystemHandler>();
             Container.Bind<IReactToEntitySystemHandler>().To<ReactToEntitySystemHandler>();
