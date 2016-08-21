@@ -10,6 +10,10 @@ namespace EcsRx.Unity
 	public abstract class SystemBehaviour : MonoBehaviour, ISystem, IDisposableContainer, IDisposable
 	{		
 		[Inject] public IEventSystem EventSystem { get; set; }
+		[Inject] public IPoolManager PoolManager { get; set; }
+
+		// TODO remove this kludge. only using it for groups, should be created with a factory
+		[Inject] protected DiContainer Container = null;
 
 		private CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
