@@ -1,7 +1,4 @@
-﻿using EcsRx.Components;
-using EcsRx.Entities;
-
-namespace EcsRx.Events
+﻿namespace EcsRx
 {
     public class ComponentAddedEvent
     {

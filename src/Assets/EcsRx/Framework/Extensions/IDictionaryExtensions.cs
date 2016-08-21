@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using EcsRx.Entities;
-using EcsRx.Groups;
-using EcsRx.Pools;
+using EcsRx;
 
 namespace EcsRx.Extensions
 {

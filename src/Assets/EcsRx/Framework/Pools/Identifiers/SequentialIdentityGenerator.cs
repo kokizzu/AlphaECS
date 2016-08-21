@@ -1,4 +1,4 @@
-﻿namespace EcsRx.Pools.Identifiers
+﻿namespace EcsRx
 {
     public class SequentialIdentityGenerator : IIdentityGenerator
     {

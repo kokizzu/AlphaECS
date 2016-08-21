@@ -1,7 +1,7 @@
-﻿using EcsRx.Components;
+﻿using EcsRx;
 using UnityEngine;
 
-namespace EcsRx.Unity.Components
+namespace EcsRx.Unity
 {
     public class ViewComponent : IComponent
     {

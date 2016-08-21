@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EcsRx.Entities;
-using EcsRx.Pools;
+using EcsRx;
 
 namespace EcsRx.Extensions
 {

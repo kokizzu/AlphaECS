@@ -1,7 +1,6 @@
-﻿using EcsRx.Unity.Components;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Assets.EcsRx.Unity.Extensions
+namespace EcsRx.Unity
 {
     public static class ViewComponentExtensions
     {

@@ -1,7 +1,4 @@
-using EcsRx.Entities;
-using EcsRx.Pools;
-
-namespace EcsRx.Events
+namespace EcsRx
 {
     public class EntityRemovedEvent
     {

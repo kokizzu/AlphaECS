@@ -43,10 +43,13 @@
 
 using System;
 using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Object = System.Object;
+using Globalization = System.Globalization;
 
 namespace EcsRx.Json {
 
@@ -98,7 +101,7 @@ namespace EcsRx.Json {
 
                 var itemType = type.GetGenericArguments()[0];
                 var listType = typeof(List<>).MakeGenericType(new[] { itemType });
-                var list = (IList)System.Activator.CreateInstance(listType);
+                var list = (IList)Activator.CreateInstance(listType);
 
                 foreach (var instance in jsonArray.Childs)
                 {
@@ -359,7 +362,7 @@ namespace EcsRx.Json {
             }
         }
 
-        public override void Serialize(System.IO.BinaryWriter aWriter)
+        public override void Serialize(BinaryWriter aWriter)
         {
             aWriter.Write((byte)JSONBinaryTag.Class);
             aWriter.Write(m_Dict.Count);
@@ -477,7 +480,7 @@ namespace EcsRx.Json {
             AsInt = aData;
         }
 
-        public override void Serialize(System.IO.BinaryWriter aWriter)
+        public override void Serialize(BinaryWriter aWriter)
         {
             var tmp = new JSONData("");
 
@@ -703,7 +706,7 @@ namespace EcsRx.Json {
         {
             if (b == null)
                 return true;
-            return System.Object.ReferenceEquals(a, b);
+            return Object.ReferenceEquals(a, b);
         }
 
         public override void Add(JSONNode aItem)
@@ -724,7 +727,7 @@ namespace EcsRx.Json {
         {
             if (obj == null)
                 return true;
-            return System.Object.ReferenceEquals(this, obj);
+            return Object.ReferenceEquals(this, obj);
         }
 
         public override int GetHashCode()
@@ -1018,12 +1021,12 @@ namespace EcsRx.Json {
         {
             if (b == null && a is JSONLazyCreator)
                 return true;
-            return System.Object.ReferenceEquals(a, b);
+            return Object.ReferenceEquals(a, b);
         }
 
         public override bool Equals(object obj)
         {
-            return System.Object.ReferenceEquals(this, obj);
+            return Object.ReferenceEquals(this, obj);
         }
 
         public override int GetHashCode()
@@ -1033,7 +1036,7 @@ namespace EcsRx.Json {
 
         #endregion operators
 
-        public static JSONNode Deserialize(System.IO.BinaryReader aReader)
+        public static JSONNode Deserialize(BinaryReader aReader)
         {
             JSONBinaryTag type = (JSONBinaryTag)aReader.ReadByte();
             switch (type)
@@ -1088,8 +1091,8 @@ namespace EcsRx.Json {
 
         public static JSONNode LoadFromBase64(string aBase64)
         {
-            var tmp = System.Convert.FromBase64String(aBase64);
-            var stream = new System.IO.MemoryStream(tmp);
+            var tmp = Convert.FromBase64String(aBase64);
+            var stream = new MemoryStream(tmp);
             stream.Position = 0;
             return LoadFromStream(stream);
         }
@@ -1104,22 +1107,22 @@ namespace EcsRx.Json {
             throw new Exception("Can't use compressed functions. You need include the SharpZipLib and uncomment the define at the top of SimpleJSON");
         }
 
-        public static JSONNode LoadFromCompressedStream(System.IO.Stream aData)
+        public static JSONNode LoadFromCompressedStream(Stream aData)
         {
             throw new Exception("Can't use compressed functions. You need include the SharpZipLib and uncomment the define at the top of SimpleJSON");
         }
 
         public static JSONNode LoadFromFile(string aFileName)
         {
-            using (var F = System.IO.File.OpenRead(aFileName))
+            using (var F = File.OpenRead(aFileName))
             {
                 return LoadFromStream(F);
             }
         }
 
-        public static JSONNode LoadFromStream(System.IO.Stream aData)
+        public static JSONNode LoadFromStream(Stream aData)
         {
-            using (var R = new System.IO.BinaryReader(aData))
+            using (var R = new BinaryReader(aData))
             {
                 return Deserialize(R);
             }
@@ -1259,7 +1262,7 @@ namespace EcsRx.Json {
                                 case 'u':
                                     {
                                         string s = aJSON.Substring(i + 1, 4);
-                                        Token += (char)int.Parse(s, System.Globalization.NumberStyles.AllowHexSpecifier);
+                                        Token += (char)int.Parse(s, Globalization.NumberStyles.AllowHexSpecifier);
                                         i += 4;
                                         break;
                                     }
@@ -1283,11 +1286,11 @@ namespace EcsRx.Json {
 
         public string SaveToBase64()
         {
-            using (var stream = new System.IO.MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 SaveToStream(stream);
                 stream.Position = 0;
-                return System.Convert.ToBase64String(stream.ToArray());
+                return Convert.ToBase64String(stream.ToArray());
             }
         }
 
@@ -1301,18 +1304,18 @@ namespace EcsRx.Json {
             throw new Exception("Can't use compressed functions. You need include the SharpZipLib and uncomment the define at the top of SimpleJSON");
         }
 
-        public void SaveToCompressedStream(System.IO.Stream aData)
+        public void SaveToCompressedStream(Stream aData)
         {
             throw new Exception("Can't use compressed functions. You need include the SharpZipLib and uncomment the define at the top of SimpleJSON");
         }
 
-        public void SaveToStream(System.IO.Stream aData)
+        public void SaveToStream(Stream aData)
         {
-            var W = new System.IO.BinaryWriter(aData);
+            var W = new BinaryWriter(aData);
             Serialize(W);
         }
 
-        public virtual void Serialize(System.IO.BinaryWriter aWriter)
+        public virtual void Serialize(BinaryWriter aWriter)
         {
         }
 
@@ -1341,7 +1344,7 @@ namespace EcsRx.Json {
         }
 
 #if USE_SharpZipLib
-		public void SaveToCompressedStream(System.IO.Stream aData)
+		public void SaveToCompressedStream(Stream aData)
 		{
 			using (var gzipOut = new ICSharpCode.SharpZipLib.BZip2.BZip2OutputStream(aData))
 			{
@@ -1353,15 +1356,15 @@ namespace EcsRx.Json {
 
 		public void SaveToCompressedFile(string aFileName)
 		{
-			System.IO.Directory.CreateDirectory((new System.IO.FileInfo(aFileName)).Directory.FullName);
-			using(var F = System.IO.File.OpenWrite(aFileName))
+			Directory.CreateDirectory((new FileInfo(aFileName)).Directory.FullName);
+			using(var F = File.OpenWrite(aFileName))
 			{
 				SaveToCompressedStream(F);
 			}
 		}
 		public string SaveToCompressedBase64()
 		{
-			using (var stream = new System.IO.MemoryStream())
+			using (var stream = new MemoryStream())
 			{
 				SaveToCompressedStream(stream);
 				stream.Position = 0;
@@ -1372,14 +1375,14 @@ namespace EcsRx.Json {
 #else
 #endif
 #if USE_SharpZipLib
-		public static JSONNode LoadFromCompressedStream(System.IO.Stream aData)
+		public static JSONNode LoadFromCompressedStream(Stream aData)
 		{
 			var zin = new ICSharpCode.SharpZipLib.BZip2.BZip2InputStream(aData);
 			return LoadFromStream(zin);
 		}
 		public static JSONNode LoadFromCompressedFile(string aFileName)
 		{
-			using(var F = System.IO.File.OpenRead(aFileName))
+			using(var F = File.OpenRead(aFileName))
 			{
 				return LoadFromCompressedStream(F);
 			}
@@ -1387,7 +1390,7 @@ namespace EcsRx.Json {
 		public static JSONNode LoadFromCompressedBase64(string aBase64)
 		{
 			var tmp = System.Convert.FromBase64String(aBase64);
-			var stream = new System.IO.MemoryStream(tmp);
+			var stream = new MemoryStream(tmp);
 			stream.Position = 0;
 			return LoadFromCompressedStream(stream);
 		}
@@ -1461,7 +1464,7 @@ namespace EcsRx.Json {
             return aNode;
         }
 
-        public override void Serialize(System.IO.BinaryWriter aWriter)
+        public override void Serialize(BinaryWriter aWriter)
         {
             aWriter.Write((byte)JSONBinaryTag.Array);
             aWriter.Write(m_List.Count);

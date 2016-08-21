@@ -1,10 +1,11 @@
-using EcsRx.Entities;
-using EcsRx.Groups;
+﻿using System.Collections;
 
-namespace EcsRx.Systems
+namespace EcsRx
 {
-    public interface ISystem
-    {
-        IGroup TargetGroup { get; }
-    }
+	public interface ISystem
+	{
+		IEventSystem EventSystem { get; set; }
+		void Setup();
+		IEnumerator SetupAsync();
+	}
 }

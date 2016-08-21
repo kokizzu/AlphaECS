@@ -3,7 +3,7 @@ using EcsRx.Json;
 using UnityEngine;
 using UniRx;
 
-namespace Assets.EcsRx.Unity.Extensions
+namespace EcsRx.Unity
 { 
     public static class ComponentExtensions
     {

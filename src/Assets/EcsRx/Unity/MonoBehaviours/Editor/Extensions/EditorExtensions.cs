@@ -4,7 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace EcsRx.Unity.Helpers.Extensions
+namespace EcsRx.Unity
 {
     public static class EditorExtensions
     {
@@ -41,7 +41,7 @@ namespace EcsRx.Unity.Helpers.Extensions
 
         public static void WithLabel(this Editor editor, string label)
         {
-            EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
+			EditorGUILayout.LabelField (label, EditorStyles.boldLabel, GUILayout.MinWidth (0));
         }
 
         public static bool WithIconButton(this Editor editor, string icon)
@@ -53,7 +53,8 @@ namespace EcsRx.Unity.Helpers.Extensions
         {
             EditorGUILayout.BeginHorizontal();
             editor.WithLabel(label);
-            EditorGUILayout.LabelField(value);
+//            EditorGUILayout.(value);
+			editor.WithLabel(value);
             EditorGUILayout.EndHorizontal();
         }
 

@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using Assets.EcsRx.Framework.Blueprints;
-using EcsRx.Entities;
-using EcsRx.Pools.Identifiers;
 
-namespace EcsRx.Pools
+namespace EcsRx
 {
     public interface IPool
     {

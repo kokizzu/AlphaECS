@@ -1,6 +1,4 @@
-﻿using EcsRx.Pools;
-
-namespace EcsRx.Events
+﻿namespace EcsRx
 {
     public class PoolRemovedEvent
     {

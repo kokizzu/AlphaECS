@@ -1,16 +1,12 @@
 ﻿using System.Collections.Generic;
-using EcsRx.Entities;
-using EcsRx.Pools;
 using UnityEngine;
 using Zenject;
 using System.Linq;
-using EcsRx.Unity.Components;
 using System;
-using EcsRx.Components;
+using EcsRx;
 using EcsRx.Json;
-using Assets.EcsRx.Unity.Extensions;
 
-namespace EcsRx.Unity.MonoBehaviours
+namespace EcsRx.Unity
 {
     public class EntityBehaviour : MonoBehaviour
     {

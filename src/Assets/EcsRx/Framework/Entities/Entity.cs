@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EcsRx.Components;
-using EcsRx.Events;
+using EcsRx;
 using EcsRx.Extensions;
 using UniRx;
 
-namespace EcsRx.Entities
+namespace EcsRx
 {
     public class Entity : IEntity
     {
@@ -54,8 +53,8 @@ namespace EcsRx.Entities
 
         public void RemoveAllComponents()
         {
-            var components = Components.ToArray();
-            components.ForEachRun(RemoveComponent);
+//            var components = Components.ToArray();
+//            components.ForEachRun(RemoveComponent);
         }
 
         public bool HasComponent<T>() where T : class, IComponent

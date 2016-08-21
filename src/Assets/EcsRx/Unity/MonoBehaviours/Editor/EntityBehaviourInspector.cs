@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.EcsRx.Unity.Extensions;
-using EcsRx.Components;
+using EcsRx;
 using EcsRx.Json;
-using EcsRx.Unity.Helpers.Extensions;
-using EcsRx.Unity.MonoBehaviours;
+using EcsRx.Unity;
 using UniRx;
 using UnityEditor;
 using UnityEngine;
 
-namespace EcsRx.Unity.Helpers
+namespace EcsRx.Unity
 {
     [CustomEditor(typeof(EntityBehaviour))]
     public class EntityBehaviourInspector : Editor

@@ -1,6 +1,6 @@
 ﻿using UniRx;
 
-namespace EcsRx.Events
+namespace EcsRx
 {
     public class EventSystem : IEventSystem
     {

@@ -1,4 +1,4 @@
-﻿namespace EcsRx.Components
+﻿namespace EcsRx
 {
     public interface IComponent
     {

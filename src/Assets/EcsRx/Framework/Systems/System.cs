@@ -1,33 +1,27 @@
-﻿using EcsRx.Systems;
-using EcsRx.Unity.Components;
-using UnityEngine;
-using EcsRx.Unity.MonoBehaviours;
-using EcsRx.Events;
-using EcsRx.Groups;
+﻿using UnityEngine;
 using UniRx;
 using Zenject;
 using System.Collections;
 using System;
 
-namespace EcsRx.Systems
+namespace EcsRx
 {
-	public abstract class ReactiveSystemBehaviour : MonoBehaviour, IReactiveSystem, IDisposableContainer, IDisposable
+	public abstract class System : ISystem, IDisposableContainer, IDisposable
 	{		
 		[Inject] public IEventSystem EventSystem { get; set; }
 
-		private CompositeDisposable _disposer = new CompositeDisposable();
+		protected CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
 		{
 			get { return _disposer; }
 			set { _disposer = value; }
 		}
-
-		[Inject]
+						
 		public virtual void Setup ()
 		{
+			
 		}
 
-		[Inject]
 		public virtual IEnumerator SetupAsync ()
 		{
 			yield break;

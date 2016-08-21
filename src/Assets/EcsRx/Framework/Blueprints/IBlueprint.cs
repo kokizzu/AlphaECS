@@ -1,6 +1,4 @@
-﻿using EcsRx.Entities;
-
-namespace Assets.EcsRx.Framework.Blueprints
+﻿namespace EcsRx
 {
     public interface IBlueprint
     {

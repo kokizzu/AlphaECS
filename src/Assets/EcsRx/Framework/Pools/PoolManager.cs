@@ -1,19 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EcsRx.Entities;
-using EcsRx.Events;
-using EcsRx.Extensions;
-using EcsRx.Groups;
-using EcsRx.Pools.Identifiers;
 using UniRx;
 
-namespace EcsRx.Pools
+namespace EcsRx
 {
     public class PoolManager : IPoolManager
     {
         public const string DefaultPoolName = "default";
         
-        private readonly IDictionary<GroupAccessorToken, IEnumerable<IEntity>> _groupAccessors;
+//        private readonly IDictionary<GroupAccessorToken, IEnumerable<IEntity>> _groupAccessors;
         private IDictionary<string, IPool> _pools;
 
         public IEventSystem EventSystem { get; private set; }
@@ -24,7 +19,7 @@ namespace EcsRx.Pools
         {
             IdentityGenerator = identityGenerator;
             EventSystem = eventSystem;
-            _groupAccessors = new Dictionary<GroupAccessorToken, IEnumerable<IEntity>>();
+//            _groupAccessors = new Dictionary<GroupAccessorToken, IEnumerable<IEntity>>();
             _pools = new Dictionary<string, IPool>();
             CreatePool(DefaultPoolName);
         }
@@ -52,27 +47,28 @@ namespace EcsRx.Pools
             EventSystem.Publish(new PoolRemovedEvent(pool));
         }
         
-        public IEnumerable<IEntity> GetEntitiesFor(IGroup group, string poolName = null)
-        {
-            if(group is EmptyGroup)
-            { return new IEntity[0]; }
+//        public IEnumerable<IEntity> GetEntitiesFor(IGroup group, string poolName = null)
+//        {
+//            if(group is EmptyGroup)
+//            { return new IEntity[0]; }
+//
+//            if (poolName != null)
+//            { return _pools[poolName].Entities.MatchingGroup(group); }
+//
+//            return Pools.GetAllEntities().MatchingGroup(group);
+//			return Pools.GetAllEntities();
+//        }
 
-            if (poolName != null)
-            { return _pools[poolName].Entities.MatchingGroup(group); }
-
-            return Pools.GetAllEntities().MatchingGroup(group);
-        }
-
-        public GroupAccessor CreateGroupAccessor(IGroup group, string poolName = null)
-        {
-            var groupAccessorToken = new GroupAccessorToken(group.TargettedComponents.ToArray(), poolName);
-            if (!_groupAccessors.ContainsKey(groupAccessorToken))
-            {
-                var entityMatches = GetEntitiesFor(group, poolName);
-                _groupAccessors.Add(groupAccessorToken, entityMatches);
-            }
-
-            return new GroupAccessor(groupAccessorToken, _groupAccessors[groupAccessorToken]);
-        }
+//        public GroupAccessor CreateGroupAccessor(IGroup group, string poolName = null)
+//        {
+//            var groupAccessorToken = new GroupAccessorToken(group.TargettedComponents.ToArray(), poolName);
+//            if (!_groupAccessors.ContainsKey(groupAccessorToken))
+//            {
+//                var entityMatches = GetEntitiesFor(group, poolName);
+//                _groupAccessors.Add(groupAccessorToken, entityMatches);
+//            }
+//
+//            return new GroupAccessor(groupAccessorToken, _groupAccessors[groupAccessorToken]);
+//        }
     }
 }

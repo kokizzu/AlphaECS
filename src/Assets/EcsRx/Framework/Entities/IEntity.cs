@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using EcsRx.Components;
 
-namespace EcsRx.Entities
+namespace EcsRx
 {
     public interface IEntity
     {
