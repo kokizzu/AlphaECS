@@ -62,12 +62,14 @@ namespace EcsRx.Unity
 				var type = Type.GetType(typeName);
 				if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]"); }
 
-				var component = (IComponent)Activator.CreateInstance(type);
+				var component = (object)Activator.CreateInstance(type);
 				var componentProperties = JSON.Parse(CachedProperties[i]);
 				component.DeserializeComponent(componentProperties);
 
 				entity.AddComponent(component);
 			}
+
+//			var monoBehaviours = 
 		}
 
 		public IPool GetPool()

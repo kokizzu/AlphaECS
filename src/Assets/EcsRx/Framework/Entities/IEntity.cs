@@ -1,21 +1,23 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace EcsRx
 {
     public interface IEntity
     {
         int Id { get; }
-        IEnumerable<IComponent> Components { get; }
+		IEnumerable<object> Components { get; }
 
-        void AddComponent(IComponent component);
-        void AddComponent<T>() where T : class, IComponent, new(); 
-        void RemoveComponent(IComponent component);
-        void RemoveComponent<T>() where T : class, IComponent;
+		void AddComponent(object component);
+        void AddComponent<T>() where T : class, new(); 
+		void RemoveComponent(object component);
+        void RemoveComponent<T>() where T : class;
         void RemoveAllComponents();
-        T GetComponent<T>() where T : class, IComponent;
+        T GetComponent<T>() where T : class;
 
-        bool HasComponent<T>() where T : class, IComponent;
+        bool HasComponent<T>() where T : class;
         bool HasComponents(params Type[] component);
     }
 }

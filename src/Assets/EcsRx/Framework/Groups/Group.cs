@@ -38,11 +38,11 @@ namespace EcsRx
 			Predicate = null;
         }
 
-		public Group(Predicate<IEntity> predicate, params Type[] components)
-        {
-			Components = components;
-			Predicate = predicate;
-        }
+//		public Group(Predicate<IEntity> predicate, params Type[] components)
+//        {
+//			Components = components;
+//			Predicate = predicate;
+//        }
 
 		[Inject]
 		public void Setup(IEventSystem eventSystem, IPoolManager poolManager)

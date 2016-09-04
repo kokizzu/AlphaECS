@@ -1,6 +1,7 @@
 using UniRx;
 using Zenject;
 using EcsRx;
+using System;
 
 namespace EcsRx.Unity
 {
@@ -14,6 +15,8 @@ namespace EcsRx.Unity
             Container.Bind<IPoolManager>().To<PoolManager>().AsSingle();
 
 			Container.Bind<IGroup> ().To<Group> ();
+
+			Container.BindFactory<Type[], Group, GroupFactory> ();
 
 //            Container.Bind<IReactToDataSystemHandler>().To<ReactToDataSystemHandler>();
 //            Container.Bind<IReactToEntitySystemHandler>().To<ReactToEntitySystemHandler>();

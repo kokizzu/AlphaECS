@@ -6,7 +6,7 @@ using UniRx;
 
 namespace EcsRx
 {
-    public static class GroupBuilder
+	public class GroupFactory : Factory<Type[], Group>
     {
 //		[Inject] public IEventSystem EventSystem { get; set; }
 //        private List<Type> _components;

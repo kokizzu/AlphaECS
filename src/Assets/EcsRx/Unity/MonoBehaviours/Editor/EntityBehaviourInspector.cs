@@ -19,7 +19,7 @@ namespace EcsRx.Unity
 
         private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
                                 .SelectMany(s => s.GetTypes())
-                                .Where(p => typeof(IComponent).IsAssignableFrom(p) && p.IsClass);
+								.Where(p => typeof(object).IsAssignableFrom(p) && p.IsClass);
 
 
 		public override void OnInspectorGUI()
@@ -83,12 +83,12 @@ namespace EcsRx.Unity
 
 				if(Application.isPlaying && index >= 0)
 				{
-					var component = (IComponent)Activator.CreateInstance(availableTypes[index]);
+					var component = (object)Activator.CreateInstance(availableTypes[index]);
 					_view.Entity.AddComponent(component);
 				}
 				else if (index >= 0)
 				{
-					var component = (IComponent)Activator.CreateInstance(availableTypes[index]);
+					var component = (object)Activator.CreateInstance(availableTypes[index]);
 					var componentName = component.ToString();
 					_view.CachedComponents.Add(componentName);
 					var json = component.SerializeComponent();
@@ -169,7 +169,7 @@ namespace EcsRx.Unity
 
 		private void ShowComponentProperties(int index)
 		{
-			IComponent component;
+			object component;
 
 			if (Application.isPlaying)
 			{
@@ -194,7 +194,7 @@ namespace EcsRx.Unity
 						return;
 					}
 				}
-				component = (IComponent)Activator.CreateInstance(type);
+				component = (object)Activator.CreateInstance(type);
 				var node = JSON.Parse(_view.CachedProperties[index]);
 				component.DeserializeComponent(node);
 			}
