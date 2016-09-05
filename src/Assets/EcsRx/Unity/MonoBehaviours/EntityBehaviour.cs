@@ -41,17 +41,19 @@ namespace EcsRx.Unity
 
 			var createdEntity = poolToUse.CreateEntity();
 			createdEntity.AddComponent(new ViewComponent { View = gameObject });
-			SetupEntityBinding(createdEntity, poolToUse);
+			Entity = createdEntity;
+			Pool = poolToUse;
+//			SetupEntityBinding(createdEntity, poolToUse);
 			SetupEntityComponents(createdEntity);
 
-			Destroy(this);
+//			Destroy(this);
 		}
 
 		private void SetupEntityBinding(IEntity entity, IPool pool)
 		{
-			var entityBinding = gameObject.AddComponent<EntityBehaviour>();
-			entityBinding.Entity = entity;
-			entityBinding.Pool = pool;
+//			var entityBinding = gameObject.AddComponent<EntityBehaviour>();
+//			entityBinding.Entity = entity;
+//			entityBinding.Pool = pool;
 		}
 
 		private void SetupEntityComponents(IEntity entity)
@@ -69,7 +71,11 @@ namespace EcsRx.Unity
 				entity.AddComponent(component);
 			}
 
-//			var monoBehaviours = 
+			var monoBehaviours = GetComponents<Component> ();
+			foreach (var mb in monoBehaviours)
+			{
+				entity.AddComponent (mb);
+			}
 		}
 
 		public IPool GetPool()

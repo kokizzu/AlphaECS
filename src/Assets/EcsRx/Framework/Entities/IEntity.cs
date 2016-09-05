@@ -11,7 +11,7 @@ namespace EcsRx
 		IEnumerable<object> Components { get; }
 
 		void AddComponent(object component);
-        void AddComponent<T>() where T : class, new(); 
+		void AddComponent<T> () where T : class, new(); 
 		void RemoveComponent(object component);
         void RemoveComponent<T>() where T : class;
         void RemoveAllComponents();

@@ -17,9 +17,14 @@ namespace EcsRx.Unity
 
         public bool showComponents;
 
-        private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
-                                .SelectMany(s => s.GetTypes())
-								.Where(p => typeof(object).IsAssignableFrom(p) && p.IsClass);
+		// can't use object here, should enforce icomponent for when people want to add simple data types via inspector
+//        private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
+//                                .SelectMany(s => s.GetTypes())
+//								.Where(p => typeof(object).IsAssignableFrom(p) && p.IsClass);
+
+		private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
+								.SelectMany(s => s.GetTypes())
+								.Where(p => typeof(IComponent).IsAssignableFrom(p) && p.IsClass);
 
 
 		public override void OnInspectorGUI()
@@ -145,6 +150,9 @@ namespace EcsRx.Unity
                             EditorGUILayout.Space();
                         });
 
+						if(componentType.IsSubclassOf(typeof(UnityEngine.Component)))
+							return;
+
                         ShowComponentProperties(i);
                     });
                 }
@@ -156,8 +164,11 @@ namespace EcsRx.Unity
             {
 				if (Application.isPlaying)
 				{
-					var component = _view.Entity.Components.ElementAt(i);
+					var component = _view.Entity.Components.ElementAt(componentsToRemove [i]);
 					_view.Entity.RemoveComponent(component);
+					Debug.Log(component.GetType());
+					if(component.GetType().IsSubclassOf(typeof(UnityEngine.Component)))
+						Destroy((UnityEngine.Component)component);
 				} 
 				else
 				{
@@ -299,7 +310,8 @@ namespace EcsRx.Unity
 				// }
 				else
 				{
-					Debug.LogWarning("This type is not supported: " + _type.Name + " - In component: " + component.GetType().Name);
+//					Debug.LogWarning("This type is not supported: " + _type.Name + " - In component: " + component.GetType().Name);
+					Debug.LogWarning("This property type is not supported!");
 					isTypeSupported = false;
 				}
 
