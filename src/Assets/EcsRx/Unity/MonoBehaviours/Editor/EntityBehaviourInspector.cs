@@ -166,7 +166,7 @@ namespace EcsRx.Unity
 				{
 					var component = _view.Entity.Components.ElementAt(componentsToRemove [i]);
 					_view.Entity.RemoveComponent(component);
-					Debug.Log(component.GetType());
+
 					if(component.GetType().IsSubclassOf(typeof(UnityEngine.Component)))
 						Destroy((UnityEngine.Component)component);
 				} 

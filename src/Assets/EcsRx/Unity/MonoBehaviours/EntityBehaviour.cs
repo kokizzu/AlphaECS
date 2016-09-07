@@ -74,7 +74,11 @@ namespace EcsRx.Unity
 			var monoBehaviours = GetComponents<Component> ();
 			foreach (var mb in monoBehaviours)
 			{
-				entity.AddComponent (mb);
+				if (mb.GetType () != typeof(EntityBehaviour) &&
+				    mb.GetType () != typeof(Transform))
+				{
+					entity.AddComponent (mb);
+				}
 			}
 		}
 
