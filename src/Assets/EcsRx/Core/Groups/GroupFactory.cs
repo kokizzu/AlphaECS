@@ -6,8 +6,17 @@ using UniRx;
 
 namespace EcsRx
 {
-	public class GroupFactory : Factory<Type[], Group>
+//	public class GroupFactory : Factory<Type[], Group>
+	public class GroupFactory
     {
+		[Inject] protected DiContainer Container = null;
+
+		public Group Create(Type[] types)
+		{
+			var group = new Group (types);
+			Container.Inject (group);
+			return group;
+		}
 //		[Inject] public IEventSystem EventSystem { get; set; }
 //        private List<Type> _components;
 //        private Predicate<IEntity> _predicate;

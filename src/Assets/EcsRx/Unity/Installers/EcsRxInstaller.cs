@@ -14,7 +14,8 @@ namespace EcsRx.Unity
             Container.Bind<IIdentityGenerator>().To<SequentialIdentityGenerator>().AsSingle();
             Container.Bind<IPoolManager>().To<PoolManager>().AsSingle();
 			Container.Bind<IGroup> ().To<Group> ();
-			Container.BindFactory<Type[], Group, GroupFactory> ();
+			Container.Bind<GroupFactory> ().To<GroupFactory> ().AsSingle ();
+//			Container.BindFactory<Type[], Group, GroupFactory> ();
         }
     }
 }

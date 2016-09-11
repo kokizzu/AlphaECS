@@ -110,8 +110,20 @@ namespace EcsRx.Unity
             this.WithHorizontalLayout(() =>
             {
 				this.WithLabel("Components (" + numberOfComponents + ")");
-                if (this.WithIconButton("▸")) { showComponents = false; }
-                if (this.WithIconButton("▾")) { showComponents = true; }
+				if(showComponents)
+				{
+					if (this.WithIconButton("▾"))
+					{
+						showComponents = false;
+					}
+				}
+				else
+				{
+					if (this.WithIconButton("▸"))						
+					{
+						showComponents = true;
+					}
+				}
             });
 
             var componentsToRemove = new List<int>();

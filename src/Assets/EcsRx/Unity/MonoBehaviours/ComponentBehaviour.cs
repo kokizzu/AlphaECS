@@ -7,7 +7,7 @@ using System;
 
 namespace EcsRx.Unity
 {
-	public abstract class ComponentBehaviour : MonoBehaviour, ISystem, IDisposableContainer, IDisposable
+	public abstract class ComponentBehaviour : MonoBehaviour, IDisposable
 	{		
 		[Inject] public IEventSystem EventSystem { get; set; }
 		[Inject] public IPoolManager PoolManager { get; set; }
