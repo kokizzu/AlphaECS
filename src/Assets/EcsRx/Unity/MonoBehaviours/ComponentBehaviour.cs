@@ -19,6 +19,17 @@ namespace EcsRx.Unity
 			set { _disposer = value; }
 		}
 
+		void Awake()
+		{
+			EventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
+			EventSystem.Publish (new ComponentCreated (){ Component = this });
+		}
+
+		void OnDestroy()
+		{
+			EventSystem.Publish (new ComponentDestroyed (){ Component = this });
+		}
+
 		[Inject]
 		public virtual void Setup ()
 		{
