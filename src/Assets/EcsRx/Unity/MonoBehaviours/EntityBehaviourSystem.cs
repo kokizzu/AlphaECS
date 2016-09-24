@@ -70,6 +70,30 @@ namespace EcsRx.Unity
 					}
 				}
 			}).AddTo(Disposer);
+
+
+			EventSystem.OnEvent<ComponentDestroyed> ()
+				.Where (x => x.Component is EntityBehaviour)
+				.Select (x => x.Component as EntityBehaviour)
+				.Subscribe (eb =>
+			{
+					IPool poolToUse;
+
+					if (string.IsNullOrEmpty(eb.PoolName))
+					{
+						poolToUse = PoolManager.GetPool();
+					}
+					else if (PoolManager.Pools.All(x => x.Name != eb.PoolName))
+					{
+						poolToUse = PoolManager.CreatePool(eb.PoolName);
+					}
+					else
+					{
+						poolToUse = PoolManager.GetPool(eb.PoolName); 
+					}
+
+					poolToUse.RemoveEntity(eb.Entity);
+			}).AddTo (this);
 		}
 	}
 }
