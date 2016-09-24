@@ -15,6 +15,7 @@ namespace EcsRx.Unity
 
 		[SerializeField]
 		public string PoolName;
+		public bool RemoveEntityOnDestroy = true;
 
 		[SerializeField]
 		public List<string> CachedComponents = new List<string>();

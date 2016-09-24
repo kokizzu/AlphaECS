@@ -75,6 +75,7 @@ namespace EcsRx.Unity
 			EventSystem.OnEvent<ComponentDestroyed> ()
 				.Where (x => x.Component is EntityBehaviour)
 				.Select (x => x.Component as EntityBehaviour)
+				.Where(x => x.RemoveEntityOnDestroy == true)
 				.Subscribe (eb =>
 			{
 					IPool poolToUse;

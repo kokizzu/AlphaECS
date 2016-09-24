@@ -71,6 +71,11 @@ namespace EcsRx.Unity
 				{
 					_view.PoolName = this.WithTextField("Pool: ", _view.PoolName);
 				}
+
+				EditorGUILayout.BeginHorizontal();
+				_view.RemoveEntityOnDestroy = EditorGUILayout.Toggle(_view.RemoveEntityOnDestroy);
+				EditorGUILayout.LabelField("Remove Entity On Destroy");
+				EditorGUILayout.EndHorizontal();
             });
         }
 
