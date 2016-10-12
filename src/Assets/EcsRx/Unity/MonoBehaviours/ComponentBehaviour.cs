@@ -27,6 +27,7 @@ namespace EcsRx.Unity
 
 		void OnDestroy()
 		{
+			Debug.Log (gameObject.name);
 			EventSystem.Publish (new ComponentDestroyed (){ Component = this });
 		}
 
