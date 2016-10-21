@@ -31,16 +31,5 @@ public class ProjectInstaller : MonoInstaller
 		{
 			Container.InjectGameObject (go);
 		}
-
-//		SceneManager.LoadSceneAsync (KernelScene, LoadSceneMode.Additive).AsObservable ().Last ().Subscribe (_ =>
-//		{
-//			var kernelScene = SceneManager.GetSceneByName (KernelScene);
-//			SceneManager.MoveGameObjectToScene (ProjectContext.Instance.gameObject, kernelScene);
-//
-//			foreach(var go in KernelObjects)
-//			{
-//				SceneManager.MoveGameObjectToScene (go, kernelScene);
-//			}
-//		}).AddTo(this);
     }
 }
