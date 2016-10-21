@@ -51,7 +51,7 @@ namespace EcsRx.Unity
 				{
 					var typeName = eb.CachedComponents[i];
 					var type = Type.GetType(typeName);
-					if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]"); }
+					if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]!"); }
 
 					var component = (object)Activator.CreateInstance(type);
 					var componentProperties = JSON.Parse(eb.CachedProperties[i]);
