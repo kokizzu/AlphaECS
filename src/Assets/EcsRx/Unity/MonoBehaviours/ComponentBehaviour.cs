@@ -8,7 +8,7 @@ using System;
 namespace EcsRx.Unity
 {
 	public abstract class ComponentBehaviour : MonoBehaviour, IDisposable
-	{		
+	{
 		[Inject] public IEventSystem EventSystem { get; set; }
 		[Inject] public IPoolManager PoolManager { get; set; }
 
@@ -19,20 +19,27 @@ namespace EcsRx.Unity
 			set { _disposer = value; }
 		}
 
-		void Awake()
-		{
-			EventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
-			EventSystem.Publish (new ComponentCreated (){ Component = this });
-		}
+		// void Awake()
+		// {
+		// 	EventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
+		// 	EventSystem.Publish (new ComponentCreated (){ Component = this });
+		// }
 
 		void OnDestroy()
 		{
+			Dispose ();
+			if(EventSystem == null)
+			{
+				Debug.LogWarning (this.gameObject.name + " WAS NOT INJECTED PROPERLY!");
+				EventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
+			}
 			EventSystem.Publish (new ComponentDestroyed (){ Component = this });
 		}
 
 		[Inject]
 		public virtual void Setup ()
 		{
+				EventSystem.Publish (new ComponentCreated (){ Component = this });
 		}
 
 		[Inject]
