@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using EcsRx.Unity;
 using EcsRx;
@@ -39,19 +39,23 @@ namespace EcsRx.Unity
 				}
 				else
 				{
-					poolToUse = PoolManager.GetPool(eb.PoolName); 
+					poolToUse = PoolManager.GetPool(eb.PoolName);
 				}
 
 				var createdEntity = poolToUse.CreateEntity();
 				eb.Entity = createdEntity;
 				eb.Pool = poolToUse;
-				eb.Entity.AddComponent(new ViewComponent { View = eb.gameObject });
+				if(eb.Entity.HasComponent<ViewComponent>() == false)
+				{
+					var viewComponent = new ViewComponent(){ DestroyWithView = true, View = eb.gameObject };
+					eb.Entity.AddComponent(viewComponent);
+				}
 
 				for (var i = 0; i < eb.CachedComponents.Count(); i++)
 				{
 					var typeName = eb.CachedComponents[i];
 					var type = Type.GetType(typeName);
-					if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]!"); }
+					if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]"); }
 
 					var component = (object)Activator.CreateInstance(type);
 					var componentProperties = JSON.Parse(eb.CachedProperties[i]);
@@ -71,7 +75,6 @@ namespace EcsRx.Unity
 				}
 			}).AddTo(Disposer);
 
-
 			EventSystem.OnEvent<ComponentDestroyed> ()
 				.Where (x => x.Component is EntityBehaviour)
 				.Select (x => x.Component as EntityBehaviour)
@@ -90,7 +93,7 @@ namespace EcsRx.Unity
 					}
 					else
 					{
-						poolToUse = PoolManager.GetPool(eb.PoolName); 
+						poolToUse = PoolManager.GetPool(eb.PoolName);
 					}
 
 					poolToUse.RemoveEntity(eb.Entity);

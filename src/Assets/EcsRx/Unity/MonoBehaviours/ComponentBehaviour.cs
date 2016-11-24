@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using EcsRx;
 using UniRx;
 using Zenject;
@@ -19,18 +19,18 @@ namespace EcsRx.Unity
 			set { _disposer = value; }
 		}
 
-		// void Awake()
-		// {
-		// 	EventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
-		// 	EventSystem.Publish (new ComponentCreated (){ Component = this });
-		// }
+//		void Awake()
+//		{
+//			EventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
+//			EventSystem.Publish (new ComponentCreated (){ Component = this });
+//		}
 
 		void OnDestroy()
 		{
 			Dispose ();
 			if(EventSystem == null)
 			{
-				Debug.LogWarning (this.gameObject.name + " WAS NOT INJECTED PROPERLY!");
+				Debug.LogWarning ("A COMPONENT ON " + this.gameObject.name + " WAS NOT INJECTED PROPERLY!");
 				EventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
 			}
 			EventSystem.Publish (new ComponentDestroyed (){ Component = this });
@@ -39,7 +39,7 @@ namespace EcsRx.Unity
 		[Inject]
 		public virtual void Setup ()
 		{
-				EventSystem.Publish (new ComponentCreated (){ Component = this });
+			EventSystem.Publish (new ComponentCreated (){ Component = this });
 		}
 
 		[Inject]
