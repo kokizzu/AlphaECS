@@ -4,7 +4,7 @@ using Zenject;
 using System.Collections;
 using System;
 
-namespace EcsRx
+namespace AlphaECS
 {
 	public abstract class System : ISystem, IDisposableContainer, IDisposable
 	{		

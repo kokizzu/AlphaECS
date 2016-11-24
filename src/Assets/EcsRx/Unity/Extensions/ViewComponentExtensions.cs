@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace EcsRx.Unity
+namespace AlphaECS
 {
     public static class ViewComponentExtensions
     {

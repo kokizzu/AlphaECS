@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using EcsRx;
+using AlphaECS;
 
-namespace EcsRx.Extensions
+namespace AlphaECS.Extensions
 {
     public static class IDictionaryExtensions
     {

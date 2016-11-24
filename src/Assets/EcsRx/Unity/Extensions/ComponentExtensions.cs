@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using EcsRx.Json;
+using AlphaECS.Json;
 using UnityEngine;
 using UniRx;
 
-namespace EcsRx.Unity
+namespace AlphaECS
 { 
     public static class ComponentExtensions
     {

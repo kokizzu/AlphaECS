@@ -2,11 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using EcsRx;
-using EcsRx.Extensions;
+using AlphaECS;
+using AlphaECS.Extensions;
 using UniRx;
 
-namespace EcsRx
+namespace AlphaECS
 {
     public class Entity : IEntity
     {

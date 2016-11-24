@@ -6,7 +6,7 @@ using Zenject;
 using UnityEngine;
 using System.Linq;
 
-namespace EcsRx
+namespace AlphaECS
 {
 	public class Group : IGroup, IDisposableContainer, IDisposable
     {

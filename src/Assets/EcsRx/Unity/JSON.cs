@@ -51,7 +51,7 @@ using UnityEngine;
 using Object = System.Object;
 using Globalization = System.Globalization;
 
-namespace EcsRx.Json {
+namespace AlphaECS.Json {
 
     [AttributeUsage(AttributeTargets.Property)]
     public class JsonProperty : Attribute

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using EcsRx;
+using AlphaECS;
 
-namespace EcsRx.Extensions
+namespace AlphaECS.Extensions
 {
     public static class IPoolExtensions
     {

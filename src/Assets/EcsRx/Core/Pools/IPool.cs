@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EcsRx
+namespace AlphaECS
 {
     public interface IPool
     {

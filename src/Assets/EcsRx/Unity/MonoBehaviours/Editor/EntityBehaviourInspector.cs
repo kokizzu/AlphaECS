@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EcsRx;
-using EcsRx.Json;
-using EcsRx.Unity;
+using AlphaECS;
+using AlphaECS.Json;
+using AlphaECS.Unity;
 using UniRx;
 using UnityEditor;
 using UnityEngine;
 
-namespace EcsRx.Unity
+namespace AlphaECS
 {
     [CustomEditor(typeof(EntityBehaviour))]
     public class EntityBehaviourInspector : Editor
@@ -167,10 +167,31 @@ namespace EcsRx.Unity
                             EditorGUILayout.Space();
                         });
 
+						if (componentType == null)
+						{
+							if (GUILayout.Button ("TYPE NOT FOUND. TRY TO CONVERT TO BEST MATCH?"))
+							{
+								componentType = TryGetConvertedType (_view.CachedComponents [i]);
+								if (componentType == null)
+								{
+									Debug.LogWarning ("UNABLE TO CONVERT " + _view.CachedComponents [i]);
+									return;
+								}
+								else
+								{
+									Debug.LogWarning ("CONVERTED " + _view.CachedComponents [i] + " to " + componentType.ToString());
+								}
+							}
+							else
+							{
+								return;
+							}
+						}
+
 						if(componentType.IsSubclassOf(typeof(UnityEngine.Component)))
 							return;
 
-                        ShowComponentProperties(i);
+                        ShowComponentProperties(i, componentType);
                     });
                 }
             }
@@ -195,7 +216,7 @@ namespace EcsRx.Unity
             }
         }
 
-		private void ShowComponentProperties(int index)
+		private void ShowComponentProperties(int index, Type type)
 		{
 			object component;
 
@@ -205,23 +226,6 @@ namespace EcsRx.Unity
 			}
 			else
 			{
-				var type = GetTypeWithAssembly(_view.CachedComponents[index]);
-				if (type == null)
-				{
-					if (GUILayout.Button ("TYPE NOT FOUND. TRY TO CONVERT TO BEST MATCH?"))
-					{
-						type = TryGetConvertedType (_view.CachedComponents [index]);
-						if (type == null)
-						{
-							Debug.LogWarning ("UNABLE TO CONVERT " + _view.CachedComponents [index]);
-							return;
-						}
-					}
-					else
-					{
-						return;
-					}
-				}
 				component = (object)Activator.CreateInstance(type);
 				var node = JSON.Parse(_view.CachedProperties[index]);
 				component.DeserializeComponent(node);

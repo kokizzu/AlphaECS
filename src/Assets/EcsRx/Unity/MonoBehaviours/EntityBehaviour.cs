@@ -3,10 +3,10 @@ using UnityEngine;
 using Zenject;
 using System.Linq;
 using System;
-using EcsRx;
-using EcsRx.Json;
+using AlphaECS;
+using AlphaECS.Json;
 
-namespace EcsRx.Unity
+namespace AlphaECS.Unity
 {
     public class EntityBehaviour : ComponentBehaviour
 	{

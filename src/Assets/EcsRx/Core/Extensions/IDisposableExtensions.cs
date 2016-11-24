@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EcsRx.Extensions
+namespace AlphaECS.Extensions
 {
     public static class IDisposableExtensions
     {

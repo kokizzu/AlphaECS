@@ -1,6 +1,6 @@
 ﻿using UniRx;
 
-namespace EcsRx
+namespace AlphaECS
 {
     public interface IEventSystem
     {

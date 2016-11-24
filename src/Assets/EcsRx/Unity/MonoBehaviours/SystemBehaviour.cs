@@ -1,11 +1,11 @@
 using UnityEngine;
-using EcsRx;
+using AlphaECS;
 using UniRx;
 using Zenject;
 using System.Collections;
 using System;
 
-namespace EcsRx.Unity
+namespace AlphaECS.Unity
 {
 	public abstract class SystemBehaviour : MonoBehaviour, ISystem, IDisposableContainer, IDisposable
 	{

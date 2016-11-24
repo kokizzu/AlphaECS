@@ -1,9 +1,9 @@
 using UniRx;
 using Zenject;
-using EcsRx;
+using AlphaECS;
 using System;
 
-namespace EcsRx.Unity
+namespace AlphaECS
 {
     public class EcsRxInstaller : MonoInstaller
     {

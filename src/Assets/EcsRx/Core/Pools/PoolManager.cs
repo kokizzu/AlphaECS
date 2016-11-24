@@ -2,7 +2,7 @@
 using System.Linq;
 using UniRx;
 
-namespace EcsRx
+namespace AlphaECS
 {
     public class PoolManager : IPoolManager
     {

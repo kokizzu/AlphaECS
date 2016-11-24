@@ -1,14 +1,14 @@
 using UnityEngine;
 using System.Collections;
-using EcsRx.Unity;
-using EcsRx;
+using AlphaECS.Unity;
+using AlphaECS;
 using System;
 using UniRx;
 using System.Linq;
 using Zenject;
-using EcsRx.Json;
+using AlphaECS.Json;
 
-namespace EcsRx.Unity
+namespace AlphaECS.Unity
 {
 	public class EntityBehaviourSystem : SystemBehaviour
 	{

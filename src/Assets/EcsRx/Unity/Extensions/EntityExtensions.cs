@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace EcsRx.Unity
+namespace AlphaECS
 {
 	public static class EntityExtensions
 	{

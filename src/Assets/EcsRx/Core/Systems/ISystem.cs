@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace EcsRx
+namespace AlphaECS
 {
 	public interface ISystem
 	{

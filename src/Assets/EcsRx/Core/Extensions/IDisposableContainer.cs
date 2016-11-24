@@ -1,7 +1,7 @@
 ﻿using UniRx;
 using System;
 
-namespace EcsRx
+namespace AlphaECS
 {
 	public interface IDisposableContainer
 	{

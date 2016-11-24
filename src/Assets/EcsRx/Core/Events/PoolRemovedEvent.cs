@@ -1,4 +1,4 @@
-﻿namespace EcsRx
+﻿namespace AlphaECS
 {
     public class PoolRemovedEvent
     {

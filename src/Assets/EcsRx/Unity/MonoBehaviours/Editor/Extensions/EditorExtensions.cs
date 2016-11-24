@@ -4,7 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace EcsRx.Unity
+namespace AlphaECS
 {
     public static class EditorExtensions
     {

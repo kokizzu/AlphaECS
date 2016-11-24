@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using EcsRx;
+using AlphaECS;
 using Zenject;
 using UniRx;
 
-namespace EcsRx
+namespace AlphaECS
 {
 //	public class GroupFactory : Factory<Type[], Group>
 	public class GroupFactory

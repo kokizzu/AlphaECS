@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UniRx;
 
-namespace EcsRx
+namespace AlphaECS
 {
     public class Pool : IPool
     {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EcsRx;
+using AlphaECS;
 //using EcsRx.Systems.Executor;
 
-namespace EcsRx.Extensions
+namespace AlphaECS.Extensions
 {
     public static class IListExtensions
     {

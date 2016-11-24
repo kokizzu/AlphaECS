@@ -1,9 +1,9 @@
 using UnityEngine;
 using Zenject;
-using EcsRx;
+using AlphaECS;
 using System.Linq;
 using System.Collections.Generic;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 
 public class SceneInstaller : MonoInstaller
 {

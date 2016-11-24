@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using EcsRx;
+using AlphaECS;
 using UniRx;
 
-namespace EcsRx.Extensions
+namespace AlphaECS.Extensions
 {
     public static class IEntityExtensions
     {

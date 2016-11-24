@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using EcsRx;
+using AlphaECS;
 using UniRx;
 using System.Collections;
 
-namespace EcsRx
+namespace AlphaECS
 {
     public interface IGroup
     {
