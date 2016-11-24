@@ -14,6 +14,10 @@ public class ProjectInstaller : MonoInstaller
 
 	public override void InstallBindings()
     {
+    	// this is a dummy scene for now because unity won't let you unload all scenes
+		SceneManager.LoadScene (KernelScene, LoadSceneMode.Additive);
+		var kernelScene = SceneManager.GetSceneByName (KernelScene);
+
 		var resources = Resources.LoadAll ("Kernel");
 		foreach(var resource in resources)
 		{
