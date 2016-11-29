@@ -1,52 +1,42 @@
-# EcsRx
+# AlphaECS
 
 [![Join the chat at https://gitter.im/grofit/ecsrx](https://badges.gitter.im/grofit/ecsrx.svg)](https://gitter.im/grofit/ecsrx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Issue Tracking In Style at https://zenhub.com](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.com)
 
-EcsRx is a reactive take on the common ECS pattern with a well separated design and support for dependency injection (if you want it).
-
-## New Info!
-
-We have now also got a real-world example to view @ [grofit/ecsrx.roguelike2d](https://github.com/grofit/ecsrx.roguelike2d)
+AlphaECS is yet another Entity Component System framework written for Unity (but theoretically could be used elsewhere) that utilizes [UniRx](https://github.com/neuecc/UniRx) for fully reactive systems and includes support for dependency injection (we use [Zenject](https://github.com/modesttree/Zenject)). It's a fork of [EcsRx](https://github.com/grofit/ecsrx) and heavily inspired by [uFrame](https://github.com/uFrame/uFrame.github.io).
 
 ## Dependencies
 
-- UniRx (All)
-- Zenject (Unity Bridge)
+- UniRx (required)
+- Zenject (optional)
 
-The core framework only depends upon UniRx however the unity bridge part of the framework depends upon zenject, however feel free to create your own unity bridge to consume the core framework if you do not want the dependency.
-
-## Installation
-
-You can take the unitypackage installation file from the relevent release, there are 2 files.
-
-- EcsRx.Core.unitypackage
-- EcsRx.Unity.unitypackage
-
-The **Core** package contains the pure project files which are required for the framework to function.
-
-The **Unity** package contains a wrapper around the **Core** framework and some unity helpers, this will be built upon going forward.
+The **Core** framework only depends upon UniRx. The **Unity** helper classes and MonoBehaviours that bootstrap your scenes use Zenject, but feel free to create your own unity bridge to consume the core framework if you do not want the dependency.
 
 ## Quick Start
 
-- Install both the above packages 
-- Install Zenject
-- Install UniRx 
+To feel comfortable with AlphaECS you'll want to be comfortable with a few different ideas:
+- Entity Component System (ECS) patterns. If you're unfamiliar with these I suggest taking a quick look [here](http://www.gamedev.net/page/resources/_/technical/game-programming/understanding-component-entity-systems-r3013).
+- Reactive programming. Here's a great article to get started: [The introduction to Reactive Programming you've been missing](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754)
+- Dependency injection. Again, we use [Zenject](https://github.com/modesttree/Zenject) and think their intro guide is pretty great.
 
-Then assuming you are using the unity bridge project just look at one of the example projects and follow the conventions in there. You will ultimately need to create a `SceneContext` from *Zenject* then register the `DefaultEcsRxInstaller` and any of your own installer classes. Then create an your own implementation of `EcsRxContainer` where you can setup your systems and entities.
+In your Unity project:
+- Install AlphaECS, UniRx, and Zenject
+- Create a ProjectContext prefab and put it in a Resources folder. Add `ProjectContext`, `AlphaECSInstaller`, and `ProjectInstaller` components to the prefab and then add setup the installer references:
 
-Much like any other ECS implementation you have the notion of entities (`IEntity`), components (`IComponent`) and systems (`ISystem`), although there are a few types of systems which you can implement based upon your needs, check out the docs folder for more information on these subjects as its more than just a 1 liner.
+![image](https://cloud.githubusercontent.com/assets/6376639/20701079/fb9243da-b64b-11e6-99ab-0c9b869305a8.png)
 
-## Running Examples
+ - Add a `SceneContext` and `SceneInstaller` to the root of your scene and setup the installer references:
 
-If you want to run the examples then just clone it and open the unity project in the `src` folder, then run the examples, I will try to add to as the library matures, but there are 2 examples there currently.
+ ![image](https://cloud.githubusercontent.com/assets/6376639/20701169/773484e4-b64c-11e6-9e36-fc218bc45cc0.png)
 
-There are also a suite of tests which are being expanded as the project grows, it was written with testability in mind.
 
-## Docs
+This setup accomplishes a few things. First, when you hit play, AlphaECSInstaller will setup the core systems of the framework for you automatically. Then, project installer will setup the **game specific** systems you've added as prefabs to the Resources/Kernel folder (think InputSystem, SaveSystem, MultiplayerSystem, SceneTransitionSystem, etc) as single instances and marks them as DontDestroyOnLoad. More on how to set these up in the paragraph below. Finally, the scene installer will look for any **scene specific** systems that exist in the scene  (think EnemySystem, PowerUpSystem, ShootingSystem, CameraSystem, etc) and bind them as single instances. Of course, if you're comfortable with code you can skip all of this and implement your own bootstrapping method.
 
-See the docs folder for more information. (This will grow)
+There is one optional system included with the framework that allows you to take full advantage of the Unity Editor to compose your entities. It is the EntityBehaviourSystem. To add this to your project, create a new folder under `Resources` called `Kernel`, then create a new prefab there and attach the `EntityBehaviourSystem` component included as one of the **Unity** helper classes.
+
+ ## Example Project
+ - [Survival Shooter](https://github.com/tbriley/AlphaECS.SurvivalShooter)
+
 
 ## HEADS UP
 
-This was not designed with performance in mind, it should be performant enough for most scenarios, and given its reactive nature and decoupled design you can easily replace implementations at will, but as lots of people love performance metrics etc, I have none and have put performance secondary to functionality.
+This was not designed with performance in mind. However, it should be performant enough for most scenarios, and given its reactive nature and decoupled design you can easily replace implementations at will. Lots of people love performance metrics, but I have none and have put performance secondary to functionality.
