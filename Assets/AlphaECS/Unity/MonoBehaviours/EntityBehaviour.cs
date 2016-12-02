@@ -47,7 +47,7 @@ namespace AlphaECS.Unity
 				{
 					return Proxy.Entity;
 				}
-				return entity == null ? Pool.CreateEntity () : entity;
+				return entity == null ? (entity = Pool.CreateEntity ()) : entity;
 			}
 			set
 			{
