@@ -84,7 +84,7 @@ public class PlayerHealth : MonoBehaviour
 }
 ```
 
-It's so easy to add effects like these, how about a cool red flash that is triggered when the player gets hit, then slowly fades out? Things will get a little more complicated for this. We'll add some references to the flash effect image and color, a boolean to keep track of when the player gets damaged, and a timer to fade out the effect:
+It's so easy to add effects like these, how about a cool red flash that is triggered when the player gets hit, then slowly fades out? We'll add some references to the flash effect image and color, a boolean to keep track of when the player gets damaged, and a timer to fade out the effect:
 
 ```
 using UnityEngine;
@@ -150,7 +150,7 @@ public class PlayerHealth : MonoBehaviour
 }
 ```
 
-Don't get too hung up on the logic above. Just try to see that our previously simple PlayerHealth class is now doing a few different things: managing health, playing sound fx, and triggering visual effects. Next, we'll add some extra effects for when the player dies, including playing a death animation and a death sound:
+Try not to get too hung up on the logic above. Just understand that our previously simple PlayerHealth class is now doing a few different things: managing health, playing sound fx, and triggering visual effects. Next, we'll add some extra effects for when the player dies, including playing a death animation and a death sound:
 
 ```
 using UnityEngine;
@@ -245,9 +245,11 @@ public class PlayerHealth : MonoBehaviour
 }
 ```
 
-So far, this isn't *too* bad. We're at about 100 lines of code for our PlayerHealth class, and it's mostly doing things related to player health. We'll take a break from our PlayerHealth and spend some time getting our player moving and shooting by creating a PlayerMovement class and a PlayerShooting class and slowly adding bits of logic similar to our PlayerHealth class. I won't go into the details of these classes, just suffice to say that now we've got 3 fairly nice and tidy classes for dealing with the majority of our player logic. And they're all separate from each other and we've got nice tidy little methods for transforming our data and everything is wonderful.
+So far, this isn't *too* bad. We're at about 100 lines of code for our PlayerHealth class, and it's mostly doing things related to player health.
 
-But there's one little issue. When our player dies they can still shoot and move. We need to disable moving and shooting when the player's health is less than or equal to 0, tie these pieces together somehow. Where should this logic go? Should the movement and shooting logic be checking if the player is alive? Or should this health class be in charge of disabling movement and shooting? PlayerHealth ended up being responsible in the tutorial:
+We'll take a break from our PlayerHealth and spend some time getting our player moving and shooting by creating a PlayerMovement class and a PlayerShooting class and slowly adding bits of logic similar to our PlayerHealth class. I won't go into the details of these classes, just trust we've now got 3 classes for dealing with the majority of our player logic. They're all nicely encapsulated from each other and contain their own data and methods for transforming that data.
+
+But there's one little issue. When our player dies they can still shoot and move. Our neatly separate classes need to be tied together somehow. We need to disable moving and shooting when the player's health is less than or equal to 0. Where should this logic go? Should the movement and shooting logic be checking if the player is alive? Or should this health class be in charge of disabling movement and shooting? In the tutorial, PlayerHealth ended up being responsible:
 
 ```
 using UnityEngine;
@@ -351,9 +353,9 @@ public class PlayerHealth : MonoBehaviour
 }
 ```
 
-We added some references to PlayerMovement and PlayerShooting and when the Death() method gets called, we disable those scripts. However, the fact that we were even asking the question of "where should this logic go?" is at least a tiny bit telling that something here feels... wrong.
+We added some references to PlayerMovement and PlayerShooting and when the Death() method gets called, we disable those scripts. However, the fact that we were even asking the question of "where should this logic go?" is telling: as your project grows larger, you'll be asking yourself this question more frequently, and the flow of logic in your game will become increasingly more complex.
 
-We put this to the back of our mind for the time being. Now that we've got a nice working player, we should probably give him some things to kill. And also create some things that can kill him, depleting his health and triggering all those cool effects we just spent so much time coding. We need *ENEMIES*. Here's a simplified version of the EnemyAttack class:
+We put this troubling thought to the back of our mind for the time being. Now that we've got a nice working player, we should probably give him some things to kill. And also create some things that can kill him, depleting his health and triggering all those cool effects we just spent so much time coding. We need *ENEMIES*. Here's a simplified version of the EnemyAttack class:
 
 ```
 using UnityEngine;
@@ -411,24 +413,185 @@ void Awake ()
 }
 ```
 
-If you later decide to rename `PlayerHealth` to `Player`, the compiler can now at least help your sort the problems.
+If you later decide to rename `PlayerHealth` to `Player`, the compiler can now at least help your sort things.
 
-However, we're still left with at least one major issue here: dependencies. Just like with the PlayerHealth, PlayerMovement, and PlayerShooting classes, we tried encapsulating things away nicely and neatly into little methods and variables to modify, but at the end of the day, we've got to tie them together somehow. And so we're left checking some variables and calling some methods from one class in another class here and there. For a game that won't grow any larger than the scope of the tutorial, this will work. But start adding any kind of complexity to your project and you'll quickly find yourself drowning in this stuff and you won't quite be sure why. You'll be checking boolean values trying to track what's alive and what's dead or injured or healing here and there and everywhere and calling different methods and passing along different sets of data depending on what "state" you've found. And because you encapsulated everything so nicely you'll have halfway hidden all your dependencies and will be up at 5:00 am tracking down endless bugs through an endless beautiful chain of method calls.
+However, we're still left with at least one major issue here: dependencies. Remember our PlayerHealth, PlayerMovement, and PlayerShooting classes, where we tried encapsulating things away nicely and neatly into little methods and variables to modify, but ended up having to tie them together? We've done the same thing here with our `EnemyAttack` class.
 
-Maybe you'll get on Google and then things will get worse because everyone will have a different opinion or framework or style for dealing with this mess. MVVM! MVC! Procedural-functional ABCDEFG! I know because I've been there. And I've found a way out for myself.
+For a game that won't grow any larger than the scope of the tutorial, this will work. But start adding any kind of complexity to your project and you'll quickly find yourself drowning in this stuff. You'll be checking boolean values trying to track what's alive and what's dead or injured or healing. And calling different methods and passing along different sets of data depending on what "state" you've found. And because you encapsulated everything so nicely you'll have halfway hidden all your dependencies and will be up at 5:00 am tracking down bugs through an endless beautiful chain of method calls.
+
+So you go to Google and then things will get worse because everyone will have a different opinion or framework or style for dealing with this mess. MVVM! MVC! Procedural-functional ABCDEFG! I know because I've been there.
 
 ## A Way Out
-First is to stop thinking in terms of nice neat objects and inheritance chains, and start thinking in terms of little pieces of data. As an example, in this Unity Shooter tutorial, we have a PlayerHealth class and an EnemyHealth class. They both do a lot of similar things, and the response of many a programmer in this situation might then be to create a base class where you keep all your shared logic, then branch out into a PlayerHealth and EnemyHealth classes and override the parts that are different. This feels good at first, but will lead to almost as many headaches. A better way would be to break down our classes into smaller, simpler bits of data. So, here's our new Health class:
+In the Unity Shooter tutorial, we have a PlayerHealth class and an EnemyHealth class. They both do a lot of similar things. This is great, because when we find similar bits of code in our programs, that's usually a sign that we can simplify things.
+
+The response of many a programmer in this situation, especially coming from an object-oriented background, might then be to create a base class where you keep all your shared logic, then branch out into PlayerHealth and EnemyHealth sub-classes and override the parts that are different. This feels good at first, but will lead to almost as many headaches later on.
+
+Instead, we can stop thinking in terms of nice neat objects and inheritance chains, and start thinking in terms of breaking our game down into little pieces of data. Our new Health class can just be:
 
 ```
 public class Health
 {
 	public int StartingHealth;
 	public int CurrentHealth;
+  public bool IsDead;
 }
 ```
 
-That's it. No logic, no methods, no inheritance, nothing. It's a simple piece of data that our players AND our enemies will use.
+That's it. No logic, no methods, no inheritance, nothing. Instead, think about COMPOSING our player out of these core pieces of data. What other pieces of data might our player have? In addition to health, we want our player to be able to shoot:
+
+```
+public class Shooter
+{
+  public int Damage;
+  public float ShotsPerSecond;
+  public float Range;
+  public BoolReactiveProperty IsShooting;
+}
+```
+
+We also want our player to be able to move around, so we need some input data:
+
+```
+public class Input
+{
+  public float HorizontalInput; // left and right arrow keys
+  public float VerticalInput; // up and down arrow keys
+}
+```
+
+So our player has Health, Shooter, and Input, similar to our previous PlayerHealth, PlayerMovement, and PlayerShooting classes from before. Only now we've separated our data into small containers that don't do anything. So we'll need to create a few different systems that watch this data and react accordingly. This might seem overly complicated at first. In the Unity tutorial we had 3 fairly simple classes for health, movement, and shooting, and now we're splitting them off into 3 Health, Shooter, and Input data containers and also 3 different systems that will contain our methods. It's not entirely intuitive at first, but just stay with me a bit. We'll start with our HealthSystem:
+
+
+```
+public class HealthSystem
+{
+    private Health[] HealthComponents;
+
+    void Start ()
+    {
+        // Setting up the references.
+        HealthComponents = FindObjectsOfType(typeof(HealthComponent)) as HealthComponent[];
+
+        // Set the initial health of each health component.
+        foreach(HealthComponent healthComponent in HealthComponents)
+        {
+          healthComponent.CurrentHealth = healthComponent.StartingHealth;
+        }
+    }
+
+    public void TakeDamage (HealthComponent healthComponent, int amount)
+    {
+        // Reduce the current health by the damage amount.
+        healthComponent.CurrentHealth -= amount;
+
+        // If the player has lost all it's health and the death flag hasn't been set yet...
+        if(healthComponent.CurrentHealth <= 0 && !healthComponent.IsDead)
+        {
+            healthComponent.IsDead = true;
+        }
+        else if(healthComponent.CurrentHealth > 0 && healthComponent.IsDead)
+        {
+          healthComponent.IsDead = false;
+        }
+    }   
+}
+```
+
+So our HealthSystem only deals with the core health data now, no special effects or other stuff. This might seem like making things overly complicated at first, as often when this kind of thing is done we haven't actually made the logic of our game simpler, we just end up hiding the complexity behind layers of encapsulation. But there are reasons for doing it here and it will pay off hugely in the long run.
+
+One such reason is that your enemies and your players now share a whole bunch of logic. Anything in your game that you want to have health you can add a `Health` component to and it will "just work". It's hard to overstate the value of this. It's a very magical feeling to be able to start adding and removing components to game objects and seeing their behavior change in realtime. Want to add health to your NPCs? Just add a `Health` component. How about creating enemies that can shoot? Just add a `Shooting` component. When you separate your data from your system logic you can very easily start adding these kinds of things to your game, removing systems
+
+
+```
+using UnityEngine;
+
+public class MovementSystem
+{
+    public float speed = 6f;            // The speed that the player will move at.
+
+    Vector3 movement;                   // The vector to store the direction of the player's movement.
+    Animator anim;                      // Reference to the animator component.
+    Rigidbody playerRigidbody;          // Reference to the player's rigidbody.
+    int floorMask;                      // A layer mask so that a ray can be cast just at gameobjects on the floor layer.
+    float camRayLength = 100f;          // The length of the ray from the camera into the scene.
+
+    void Awake ()
+    {
+        // Create a layer mask for the floor layer.
+        floorMask = LayerMask.GetMask ("Floor");
+
+        // Set up references.
+        anim = GetComponent <Animator> ();
+        playerRigidbody = GetComponent <Rigidbody> ();
+    }
+
+
+    void FixedUpdate ()
+    {
+        // Store the input axes.
+        float h = Input.GetAxisRaw ("Horizontal");
+        float v = Input.GetAxisRaw ("Vertical");
+
+        // Move the player around the scene.
+        Move (h, v);
+
+        // Turn the player to face the mouse cursor.
+        Turning ();
+
+        // Animate the player.
+        Animating (h, v);
+    }
+
+    void Move (float h, float v)
+    {
+        // Set the movement vector based on the axis input.
+        movement.Set (h, 0f, v);
+
+        // Normalise the movement vector and make it proportional to the speed per second.
+        movement = movement.normalized * speed * Time.deltaTime;
+
+        // Move the player to it's current position plus the movement.
+        playerRigidbody.MovePosition (transform.position + movement);
+    }
+
+    void Turning ()
+    {
+        // Create a ray from the mouse cursor on screen in the direction of the camera.
+        Ray camRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+
+        // Create a RaycastHit variable to store information about what was hit by the ray.
+        RaycastHit floorHit;
+
+        // Perform the raycast and if it hits something on the floor layer...
+        if(Physics.Raycast (camRay, out floorHit, camRayLength, floorMask))
+        {
+            // Create a vector from the player to the point on the floor the raycast from the mouse hit.
+            Vector3 playerToMouse = floorHit.point - transform.position;
+
+            // Ensure the vector is entirely along the floor plane.
+            playerToMouse.y = 0f;
+
+            // Create a quaternion (rotation) based on looking down the vector from the player to the mouse.
+            Quaternion newRotation = Quaternion.LookRotation (playerToMouse);
+
+            // Set the player's rotation to this new rotation.
+            playerRigidbody.MoveRotation (newRotation);
+        }
+    }
+
+    void Animating (float h, float v)
+    {
+        // Create a boolean that is true if either of the input axes is non-zero.
+        bool walking = h != 0f || v != 0f;
+
+        // Tell the animator whether or not the player is walking.
+        anim.SetBool ("IsWalking", walking);
+    }
+}
+```
+
+
+We create a simple container of data that our players AND our enemies will use. One way I like to think about it is that the game is basically a giant database, which you then filter at a higher level to create your special effects, control movement, spawn enemies, etc.
 
 ## Dependencies
 
