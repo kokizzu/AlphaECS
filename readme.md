@@ -4,7 +4,16 @@
 
 AlphaECS is yet another Entity Component System framework for Unity that uses [UniRx](https://github.com/neuecc/UniRx) for fully reactive systems and includes support for dependency injection (we use [Zenject](https://github.com/modesttree/Zenject)). It's a fork of [EcsRx](https://github.com/grofit/ecsrx) and heavily inspired by [uFrame](https://github.com/uFrame/uFrame.github.io).
 
-## Introduction
+- <a href="#introduction">Introduction</a>
+- <a href="#a_better_way_to_code">A Better Way to Code</a>
+- <a href="#alphaecs_overview">AlphaECS Overview</a>
+- <a href="#quick_start">Quick Start</a>
+- <a href="#example_project">Example Project</a>
+- <a href="#dependencies">Dependencies</a>
+- <a href="#final_thoughts">Final Thoughts</a>
+
+
+## <a id="introduction"></a>Introduction
 What follows is my own personal take on ECS based design. I try to keep it light and to the point, but I highly recommend taking a look around Google for more thorough explanations, as designing your code this way can take some getting used to.
 
 Developing with Unity often centers around MonoBehaviours, which are a very special type of class that you can attach to your game objects. Let's imagine we want to create a player. We'll re-use some code from the [Unity Survival Shooter](https://unity3d.com/learn/tutorials/projects/survival-shooter-tutorial) tutorial:
@@ -258,21 +267,21 @@ using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int startingHealth = 100;                            // The amount of health the player starts the game with.
-    public int currentHealth;                                   // The current health the player has.
-    public Slider healthSlider;                                 // Reference to the UI's health bar.
-    public Image damageImage;                                   // Reference to an image to flash on the screen on being hurt.
-    public AudioClip deathClip;                                 // The audio clip to play when the player dies.
-    public float flashSpeed = 5f;                               // The speed the damageImage will fade at.
-    public Color flashColour = new Color(1f, 0f, 0f, 0.1f);     // The colour the damageImage is set to, to flash.
+    public int startingHealth = 100;
+    public int currentHealth;
+    public Slider healthSlider;
+    public Image damageImage;
+    public AudioClip deathClip;
+    public float flashSpeed = 5f;
+    public Color flashColour = new Color(1f, 0f, 0f, 0.1f);
 
 
-    Animator anim;                                              // Reference to the Animator component.
-    AudioSource playerAudio;                                    // Reference to the AudioSource component.
-    PlayerMovement playerMovement;                              // Reference to the player's movement.
-    PlayerShooting playerShooting;                              // Reference to the PlayerShooting script.
-    bool isDead;                                                // Whether the player is dead.
-    bool damaged;                                               // True when the player gets damaged.
+    Animator anim;
+    AudioSource playerAudio;
+    PlayerMovement playerMovement;
+    PlayerShooting playerShooting;
+    bool isDead;
+    bool damaged;
 
 
     void Awake ()
@@ -355,7 +364,7 @@ public class PlayerHealth : MonoBehaviour
 
 We added some references to PlayerMovement and PlayerShooting and when the Death() method gets called, we disable those scripts. However, the fact that we were even asking the question of "where should this logic go?" is telling: as your project grows larger, you'll be asking yourself this question more frequently, and the flow of logic in your game will become increasingly more complex.
 
-We put this troubling thought to the back of our mind for the time being. Now that we've got a nice working player, we should probably give him some things to kill. And also create some things that can kill him, depleting his health and triggering all those cool effects we just spent so much time coding. We need *ENEMIES*. Here's a simplified version of the EnemyAttack class:
+We put this troubling thought to the back of our mind for the time being. Now that we've got a nice working player, we should probably give him some things to kill. And also create some things that can kill him, depleting his health and triggering all those cool effects we just spent so much time coding. We need *enemies*. Here's a simplified version of the EnemyAttack class:
 
 ```
 using UnityEngine;
@@ -421,7 +430,7 @@ For a game that won't grow any larger than the scope of the tutorial, this will 
 
 So you go to Google and then things will get worse because everyone will have a different opinion or framework or style for dealing with this mess. MVVM! MVC! Procedural-functional ABCDEFG! I know because I've been there.
 
-## A Way Out
+## <a id="a_better_way_to_code"></a>A Better Way to Code
 In the Unity Shooter tutorial, we have a PlayerHealth class and an EnemyHealth class. They both do a lot of similar things. This is great, because when we find similar bits of code in our programs, that's usually a sign that we can simplify things.
 
 The response of many a programmer in this situation, especially coming from an object-oriented background, might then be to create a base class where you keep all your shared logic, then branch out into PlayerHealth and EnemyHealth sub-classes and override the parts that are different. This feels good at first, but will lead to almost as many headaches later on.
@@ -445,7 +454,7 @@ public class Shooter
   public int Damage;
   public float ShotsPerSecond;
   public float Range;
-  public BoolReactiveProperty IsShooting;
+  public bool IsShooting;
 }
 ```
 
@@ -459,7 +468,7 @@ public class Input
 }
 ```
 
-So our player has Health, Shooter, and Input, similar to our previous PlayerHealth, PlayerMovement, and PlayerShooting classes from before. Only now we've separated our data into small containers that don't do anything. So we'll need to create a few different systems that watch this data and react accordingly. This might seem overly complicated at first. In the Unity tutorial we had 3 fairly simple classes for health, movement, and shooting, and now we're splitting them off into 3 Health, Shooter, and Input data containers and also 3 different systems that will contain our methods. It's not entirely intuitive at first, but just stay with me a bit. We'll start with our HealthSystem:
+In the Unity tutorial we had 3 fairly simple classes for PlayerHealth, PlayerMovement, and PlayerShooting classes that contained all the data and methods required for that functionality. Here we've separated our data into Health, Shooter, and Input data containers that don't do anything, and we'll need to create at least 3 additional classes that will contain our logic. This might seem like we're making things overly complicated at first. We're going from 3 classes to 6 or more. Often when I examples like this I roll my eyes. The programmer giving the example is trying to demonstrate how much tidier and more readable your classes become by separating things out. But most of the time the logic of the game isn't actually made any simpler - they've just hidden the complexity behind layers of encapsulation and neatly named methods. But just stay with me a bit. Here's our new HealthSystem, which only deals with the core health data, no special effects or other stuff:
 
 
 ```
@@ -497,110 +506,81 @@ public class HealthSystem
 }
 ```
 
-So our HealthSystem only deals with the core health data now, no special effects or other stuff. This might seem like making things overly complicated at first, as often when this kind of thing is done we haven't actually made the logic of our game simpler, we just end up hiding the complexity behind layers of encapsulation. But there are reasons for doing it here and it will pay off hugely in the long run.
+Again, the reasons for doing this are not immediately clear, but will pay off hugely in the long run.
 
-One such reason is that your enemies and your players now share a whole bunch of logic. Anything in your game that you want to have health you can add a `Health` component to and it will "just work". It's hard to overstate the value of this. It's a very magical feeling to be able to start adding and removing components to game objects and seeing their behavior change in realtime. Want to add health to your NPCs? Just add a `Health` component. How about creating enemies that can shoot? Just add a `Shooting` component. When you separate your data from your system logic you can very easily start adding these kinds of things to your game, removing systems
+One such reason is that your enemies and your players now share a whole bunch of logic. Anything in your game that you want to have health you can add a `Health` component to and it will "just work". **I can not overstate the value of this**. It's a magical feeling to be able to start adding and removing functionality like this in realtime just by adding components to your game objects.
+
+- Want to add health to an NPC and make them killable? Add a `Health` component.
+- How about creating an enemy that can shoot? Add a `Shooting` component.
+- How about something that can shoot AND has a melee attack? Create a small class that contains the type of data you'd want to have for a melee attack (Damage, AttacksPerSecond, and Range, for example), then create a system for managing that logic. Add both your `Shooting` and `Melee` components to your game object.
+- How about removing all shooting from your game? Disable the ShootingSystem.
+
+Your game basically becomes a big, flat database that you filter at a higher level to handle your movement logic, create special effects, spawn enemies, etc. When you separate your data and then read, transform, and react to that data from separate systems, it becomes almost trivial to build and test new functionality, remove functionality entirely, and just have fun making your game. Someone once described working this way as "feeling like you're physically wiring things up".
+
+## <a id="alphaecs_overview"></a>AlphaECS Overview
+**Entities**
+
+A container for a list of components. In AlphaECS an entity is NOT a GameObject, but is instead a simple class. Each entity has a unique ID and is created via a pool. They can be created via one of two different ways:
+  - Code - using the PoolManager, get a pool and use it to create an entity:
+  ```
+  var entity = PoolManager.GetPool().CreateEntity ();
+  ```
+  - Scene - add an EntityBehaviour component, which is a special MonoBehaviour included in the Unity portion of the framework, to your GameObject. You can give it a named Pool or let the framework use the default pool.
+
+**Components**
+
+Small containers for data. You add components to your entities to "compose" different types of objects in your game. For example, instead of creating a typical Player class with hundreds of lines of code, you define the types of data your player might have in components, then add those components to an entity. Think of it like implicitly rather than explicitly defining your objects. In most other ECS frameworks a component either a plain old C# object (ala Entitas) or a MonoBheaviour that you attach to a GameObject for easy setup of your entities in your Unity scene (ala uFrame ECS). Both approaches have their advantages and disadvantages. In AlphaECS a component is an object and thus can be either a POCO or a MonoBehaviour:
+- POCO - define your class, then add it to an entity:
+
+```
+public class Shooter
+{
+  public int Damage;
+  public float ShotsPerSecond;
+  public float Range;
+  public BoolReactiveProperty IsShooting;
+}
+
+public class ShootingSystem
+{
+  void Start()
+  {
+    var entity = PoolManager.GetPool().CreateEntity ();
+    entity.AddComponet<Shooter>();
+  }
+}
+```
+- MonoBehaviour - define your MonoBehaviour class and add an EntityBehaviour and your MonoBheaviour to your GameObject:
+
+**Systems** and **Groups**
+
+Systems are where you define your logic, and groups are how you define things like `Player` and `Enemy` in ECS. Note that we're no longer using things like FindObjectsOfType, as we want our systems to be able to react to new entities being created, not just grabbing lists of things when the game starts. This is how we actually define our group of entities with Health in our HealthSystem in AlphaECS:
 
 
 ```
-using UnityEngine;
-
-public class MovementSystem
+public class HealthSystem : SystemBehaviour
 {
-    public float speed = 6f;            // The speed that the player will move at.
-
-    Vector3 movement;                   // The vector to store the direction of the player's movement.
-    Animator anim;                      // Reference to the animator component.
-    Rigidbody playerRigidbody;          // Reference to the player's rigidbody.
-    int floorMask;                      // A layer mask so that a ray can be cast just at gameobjects on the floor layer.
-    float camRayLength = 100f;          // The length of the ray from the camera into the scene.
-
-    void Awake ()
+    public override void Setup ()
     {
-        // Create a layer mask for the floor layer.
-        floorMask = LayerMask.GetMask ("Floor");
+        // define your group
+        // in this example, any entity that has a `Health` component will be added to the group
+        var HealthComponents = GroupFactory.Create(typeof(Health));
 
-        // Set up references.
-        anim = GetComponent <Animator> ();
-        playerRigidbody = GetComponent <Rigidbody> ();
-    }
-
-
-    void FixedUpdate ()
-    {
-        // Store the input axes.
-        float h = Input.GetAxisRaw ("Horizontal");
-        float v = Input.GetAxisRaw ("Vertical");
-
-        // Move the player around the scene.
-        Move (h, v);
-
-        // Turn the player to face the mouse cursor.
-        Turning ();
-
-        // Animate the player.
-        Animating (h, v);
-    }
-
-    void Move (float h, float v)
-    {
-        // Set the movement vector based on the axis input.
-        movement.Set (h, 0f, v);
-
-        // Normalise the movement vector and make it proportional to the speed per second.
-        movement = movement.normalized * speed * Time.deltaTime;
-
-        // Move the player to it's current position plus the movement.
-        playerRigidbody.MovePosition (transform.position + movement);
-    }
-
-    void Turning ()
-    {
-        // Create a ray from the mouse cursor on screen in the direction of the camera.
-        Ray camRay = Camera.main.ScreenPointToRay (Input.mousePosition);
-
-        // Create a RaycastHit variable to store information about what was hit by the ray.
-        RaycastHit floorHit;
-
-        // Perform the raycast and if it hits something on the floor layer...
-        if(Physics.Raycast (camRay, out floorHit, camRayLength, floorMask))
+        // this confusing looking bit of code is just watching for when entities get added to the group
+        // ObserveAdd = watch for additions
+        // Subscribe = do your logic when the entity gets added
+        HealthComponents.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
         {
-            // Create a vector from the player to the point on the floor the raycast from the mouse hit.
-            Vector3 playerToMouse = floorHit.point - transform.position;
-
-            // Ensure the vector is entirely along the floor plane.
-            playerToMouse.y = 0f;
-
-            // Create a quaternion (rotation) based on looking down the vector from the player to the mouse.
-            Quaternion newRotation = Quaternion.LookRotation (playerToMouse);
-
-            // Set the player's rotation to this new rotation.
-            playerRigidbody.MoveRotation (newRotation);
-        }
-    }
-
-    void Animating (float h, float v)
-    {
-        // Create a boolean that is true if either of the input axes is non-zero.
-        bool walking = h != 0f || v != 0f;
-
-        // Tell the animator whether or not the player is walking.
-        anim.SetBool ("IsWalking", walking);
+          var healthComponent = entity.GetComponent<HealthComponent>()
+          healthComponent.CurrentHealth = healthComponent.StartingHealth;
+        }).AddTo(this.Disposer);
     }
 }
 ```
 
+For a deeper dive, check out the quick start guide, example project, or give a holler in the gitter channel!
 
-We create a simple container of data that our players AND our enemies will use. One way I like to think about it is that the game is basically a giant database, which you then filter at a higher level to create your special effects, control movement, spawn enemies, etc.
-
-## Dependencies
-
-- UniRx (required)
-- Zenject (optional)
-
-The **Core** framework only depends upon UniRx. The **Unity** helper classes and MonoBehaviours that bootstrap your scenes use Zenject, but feel free to create your own unity bridge to consume the core framework if you do not want the dependency.
-
-## Quick Start
+## <a id="quick_start"></a>Quick Start
 
 To feel comfortable with AlphaECS you'll want to be comfortable with a few different ideas:
 - Entity Component System (ECS) patterns. If you're unfamiliar with these I suggest taking a quick look [here](http://www.gamedev.net/page/resources/_/technical/game-programming/understanding-component-entity-systems-r3013).
@@ -622,10 +602,20 @@ This setup accomplishes a few things. First, when you hit play, AlphaECSInstalle
 
 There is one optional system included with the framework that allows you to take full advantage of the Unity Editor to compose your entities. It is the EntityBehaviourSystem. To add this to your project, create a new folder under `Resources` called `Kernel`, then create a new prefab there and attach the `EntityBehaviourSystem` component included as one of the **Unity** helper classes.
 
- ## Example Project
+
+## <a id="example_project"></a>Example Project
+
  - [Survival Shooter](https://github.com/tbriley/AlphaECS.SurvivalShooter)
 
 
-## HEADS UP
+## <a id="dependencies"></a>Dependencies
+
+ - UniRx (required)
+ - Zenject (optional)
+
+ The **Core** framework only depends upon UniRx. The **Unity** helper classes and MonoBehaviours that bootstrap your scenes use Zenject, but feel free to create your own unity bridge to consume the core framework if you do not want the dependency.
+
+
+## <a id="final_thoughts"></a>Final Thoughts
 
 This was not designed with performance in mind. However, it should be performant enough for most scenarios, and given its reactive nature and decoupled design you can easily replace implementations at will. Lots of people love performance metrics, but I have none and have put performance secondary to functionality.
