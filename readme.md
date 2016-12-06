@@ -1,6 +1,6 @@
 # AlphaECS
 
-[![Join the chat at https://gitter.im/grofit/ecsrx](https://badges.gitter.im/grofit/ecsrx.svg)](https://gitter.im/grofit/ecsrx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/AlphaECS/Lobby.svg)](https://gitter.im/AlphaECS/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
 AlphaECS is yet another Entity Component System framework for Unity that uses [UniRx](https://github.com/neuecc/UniRx) for fully reactive systems and includes support for dependency injection (we use [Zenject](https://github.com/modesttree/Zenject)). It's a fork of [EcsRx](https://github.com/grofit/ecsrx) and heavily inspired by [uFrame](https://github.com/uFrame/uFrame.github.io).
 

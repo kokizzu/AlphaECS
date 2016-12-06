@@ -1,8 +1,9 @@
 # Docs
 
-Here is an attempt at documentation of the framework and use-cases.
+Here is where all the hard core documentation for the framework will live.
 
-Hopefully there are topics you care about and provide you enough basic information to go on, if now however feel free to join the 
-gitter room and chat some more about it in there.
+Hopefully there are topics you care about and provide you enough basic information to go on.
 
-There are also a number of examples within the project folders you can just look over or check out and run yourself.
+Feel free to join the [![Gitter](https://badges.gitter.im/AlphaECS/Lobby.svg)](https://gitter.im/AlphaECS/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) chatroom and discuss any confusing bits.
+
+There is also the [Unity Survival Shooter](https://unity3d.com/learn/tutorials/projects/survival-shooter-tutorial) example project that's been completely redone using AlphaECS.
