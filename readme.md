@@ -16,7 +16,7 @@ AlphaECS is yet another Entity Component System framework for Unity that uses [U
 ## <a id="introduction"></a>Introduction
 What follows is my own personal take on ECS based design. I try to keep it light and to the point, but I highly recommend taking a look around Google for more thorough explanations, as designing your code this way can take some getting used to.
 
-Developing with Unity often centers around MonoBehaviours, which are a very special type of class that you can attach to your game objects. Let's imagine we want to create a player. We'll re-use some code from the [Unity Survival Shooter](https://unity3d.com/learn/tutorials/projects/survival-shooter-tutorial) tutorial:
+Developing with Unity often centers around MonoBehaviours, which are a very special type of class that you can attach to your GameObjects. Let's imagine we want to create a player. We'll re-use some code from the [Unity Survival Shooter](https://unity3d.com/learn/tutorials/projects/survival-shooter-tutorial) tutorial:
 
 ```
 using UnityEngine;
