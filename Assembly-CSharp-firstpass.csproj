@@ -294,9 +294,6 @@
      <None Include="Assets\UnityTestTools\changelog.txt" />
      <None Include="Assets\Zenject\Version.txt" />
      <None Include="Assets\Plugins\UniRx\ReadMe.txt" />
- <Reference Include="UnityEngine.Advertisements">
- <HintPath>/Applications/Unity5.5.0/Unity.app/Contents/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
- </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity5.5.0/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
@@ -312,17 +309,14 @@
  <Reference Include="UnityEngine.HoloLens">
  <HintPath>/Applications/Unity5.5.0/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
  </Reference>
- <Reference Include="UnityEngine.Purchasing">
- <HintPath>/Applications/Unity5.5.0/Unity.app/Contents/UnityExtensions/Unity/UnityPurchasing/UnityEngine.Purchasing.dll</HintPath>
- </Reference>
  <Reference Include="UnityEngine.VR">
  <HintPath>/Applications/Unity5.5.0/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
- <HintPath>/Users/Qinqin/Project/AlphaECS/Assets/UnityTestTools/IntegrationTestsFramework/Libs/Mono.Cecil.dll</HintPath>
+ <HintPath>/Users/tim/Projects/AlphaECS/Assets/UnityTestTools/IntegrationTestsFramework/Libs/Mono.Cecil.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil.Mdb">
- <HintPath>/Users/Qinqin/Project/AlphaECS/Assets/UnityTestTools/IntegrationTestsFramework/Libs/Mono.Cecil.Mdb.dll</HintPath>
+ <HintPath>/Users/tim/Projects/AlphaECS/Assets/UnityTestTools/IntegrationTestsFramework/Libs/Mono.Cecil.Mdb.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

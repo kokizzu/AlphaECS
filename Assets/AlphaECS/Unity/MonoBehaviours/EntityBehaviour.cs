@@ -107,8 +107,9 @@ namespace AlphaECS.Unity
 
 		public override void OnDestroy ()
 		{
-			IPool poolToUse;
+			if (!RemoveEntityOnDestroy) return;
 
+			IPool poolToUse;
 			if (string.IsNullOrEmpty(PoolName))
 			{
 				poolToUse = PoolManager.GetPool();
@@ -121,7 +122,6 @@ namespace AlphaECS.Unity
 			{
 				poolToUse = PoolManager.GetPool(PoolName);
 			}
-
 			poolToUse.RemoveEntity(Entity);
 
 			base.OnDestroy ();
