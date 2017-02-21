@@ -10,11 +10,13 @@ namespace AlphaECS.Unity
     {
         [Inject]
 		public IEventSystem EventSystem { get; set; }
+
         [Inject]
 		public IPoolManager PoolManager { get; set; }
 
-        // TODO remove this kludge. only using it for groups, should be created with a factory
-        //		[Inject] protected DiContainer Container = null;
+        [Inject]
+        protected PrefabFactory PrefabFactory { get; set; }
+
         [Inject]
 		protected GroupFactory GroupFactory { get; set; }
 

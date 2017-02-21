@@ -15,6 +15,7 @@ namespace AlphaECS
             Container.Bind<IPoolManager>().To<PoolManager>().AsSingle();
 			Container.Bind<IGroup> ().To<Group> ();
 			Container.Bind<GroupFactory> ().To<GroupFactory> ().AsSingle ();
+            Container.Bind<PrefabFactory>().To<PrefabFactory>().AsSingle();
 //			Container.BindFactory<Type[], Group, GroupFactory> ();
         }
     }
