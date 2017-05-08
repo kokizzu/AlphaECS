@@ -11,7 +11,10 @@ namespace AlphaECS
 //		public static void DisposeAll(this IEnumerable<SubscriptionToken> disposables)
 //		{ disposables.ForEachRun(x => x.Disposable.Dispose()); }
 
-		public static void AddTo(this IDisposable currentDisposable, ICollection<IDisposable> disposables)
-		{ disposables.Add(currentDisposable); }
+		public static IDisposable AddTo(this IDisposable currentDisposable, ICollection<IDisposable> disposables)
+		{
+			disposables.Add(currentDisposable);
+			return currentDisposable;
+		}
 	}
 }
