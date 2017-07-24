@@ -103,7 +103,7 @@ namespace AlphaECS
 					var component = (object)Activator.CreateInstance(availableTypes[index]);
 					var componentName = component.ToString();
 					_view.CachedComponents.Add(componentName);
-					var json = component.SerializeComponent();
+					var json = component.Serialize();
 					_view.CachedProperties.Add(json.ToString());
 				}
 			});
@@ -147,7 +147,7 @@ namespace AlphaECS
 						}
 						else
 						{
-							componentType = GetTypeWithAssembly(_view.CachedComponents[i]);
+							componentType = _view.CachedComponents[i].GetTypeWithAssembly();
 						}
 
 						var typeName = componentType == null ? "" : componentType.Name;
@@ -173,7 +173,7 @@ namespace AlphaECS
 						{
 							if (GUILayout.Button ("TYPE NOT FOUND. TRY TO CONVERT TO BEST MATCH?"))
 							{
-								componentType = TryGetConvertedType (_view.CachedComponents [i]);
+								componentType = _view.CachedComponents [i].TryGetConvertedType();
 								if (componentType == null)
 								{
 									Debug.LogWarning ("UNABLE TO CONVERT " + _view.CachedComponents [i]);
@@ -230,7 +230,7 @@ namespace AlphaECS
 			{
 				component = (object)Activator.CreateInstance(type);
 				var node = JSON.Parse(_view.CachedProperties[index]);
-				component.DeserializeComponent(node);
+				component.Deserialize(node);
 			}
 
 //			var members = component.GetType().GetMembers();
@@ -346,48 +346,11 @@ namespace AlphaECS
 				if (!Application.isPlaying)
 				{
 					_view.CachedComponents[index] = component.GetType().ToString();
-					var json = component.SerializeComponent();
+					var json = component.Serialize();
 					_view.CachedProperties[index] = json.ToString();
 				}
 				EditorGUILayout.EndHorizontal();
 			}
-		}
-
-        public static Type GetTypeWithAssembly(string typeName)
-        {
-            var type = Type.GetType(typeName);
-            if (type != null) return type;
-            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                type = a.GetType(typeName);
-                if (type != null)
-                    return type;
-            }
-            return null;
-        }
-
-		public static Type TryGetConvertedType(string typeName)
-		{
-			var type = Type.GetType(typeName);
-			var namePortions = typeName.Split(',')[0].Split('.');
-			typeName = namePortions.Last();
-
-			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-			{
-				Type[] assemblyTypes = a.GetTypes();
-				for (int j = 0; j < assemblyTypes.Length; j++)
-				{
-					if (typeName == assemblyTypes[j].Name)
-					{
-						type = assemblyTypes [j];
-						if (type != null)
-						{
-							return type;
-						}
-					}
-				}
-			}
-			return null;
 		}
 
 		private void PersistChanges()
