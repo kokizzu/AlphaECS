@@ -12,12 +12,12 @@ using UnityEditorInternal;
 
 namespace AlphaECS
 {
-    [CustomEditor(typeof(EntityBehaviour), true)]
-    public class EntityBehaviourEditor : Editor
-    {
-        private EntityBehaviour view;
+	[CustomEditor(typeof(EntityBehaviour), true)]
+	public class EntityBehaviourEditor : Editor
+	{
+		private EntityBehaviour view;
 
-        private ReorderableList reorderableComponents;
+		private ReorderableList reorderableComponents;
 
 		private ReorderableList reorderableBlueprints;
 
@@ -25,16 +25,22 @@ namespace AlphaECS
 		private bool showBlueprints = true;
 
 		private readonly IEnumerable<Type> componentBaseTypes = AppDomain.CurrentDomain.GetAssemblies()
-							.SelectMany(s => s.GetTypes())
-							.Where(p => typeof(ComponentBase).IsAssignableFrom(p) && p.IsClass);
+			.SelectMany(s => s.GetTypes())
+			.Where(p => typeof(ComponentBase).IsAssignableFrom(p) && p.IsClass);
 
-		private readonly IEnumerable<Type> blueprintBaseTypes = AppDomain.CurrentDomain.GetAssemblies()
-					.SelectMany(s => s.GetTypes())
-                    .Where(p => typeof(BlueprintBase).IsAssignableFrom(p) && p.IsClass);
+        //private readonly IEnumerable<Type> blueprintBaseTypes = AppDomain.CurrentDomain.GetAssemblies()
+            //.SelectMany(s => s.GetTypes())
+            //.Where(p => typeof(BlueprintBase).IsAssignableFrom(p) && p.IsClass);
 
-        int headerProperties = 2;
-		int lineHeight = 15;
-		int lineSpacing = 18;
+		int headerProperties = 2;
+        float lineHeight = EditorGUIUtility.singleLineHeight;
+        float lineSpacing = EditorGUIUtility.standardVerticalSpacing;
+        float elementPadding = EditorGUIUtility.standardVerticalSpacing;
+
+		public float[] componentHeights = new float[100];
+		public float[] blueprintHeights = new float[100];
+
+        private int componentToRemove = -1;
 
 		private class ObjectInfo
 		{
@@ -44,104 +50,37 @@ namespace AlphaECS
 		void OnEnable()
 		{
 			if (view == null)
-            { view = (EntityBehaviour)target; }
+			{ view = (EntityBehaviour)target; }
 
-            SetHideFlags(PrefabUtility.GetPrefabType(view.gameObject));
+			reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("ComponentTypes"), true, true, true, true);
 
-            reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("Components"), true, true, true, true);
-			
-            reorderableComponents.drawHeaderCallback = (Rect rect) =>
+			reorderableComponents.drawHeaderCallback = (Rect rect) =>
 			{ EditorGUI.LabelField(rect, "Components", EditorStyles.boldLabel); };
 
-            reorderableComponents.drawElementCallback = (rect, index, isActive, isFocused) => 
-            {
-                var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
+			reorderableComponents.drawElementCallback = (rect, index, isActive, isFocused) =>
+			{
+                var component = (object)Activator.CreateInstance(view.ComponentTypes[index].GetTypeWithAssembly());
+                JsonUtility.FromJsonOverwrite(view.ComponentData[index], component);
+                OnDrawElement(rect, component, index, componentHeights);
+                view.ComponentData[index] = JsonUtility.ToJson(component);
+				//OnDrawElement(reorderableComponents, view.Components[index].GetType().ToString(), rect, index, isActive, isFocused, componentHeights);
+			};
 
-				//for when first creating a prefab from an instance
-                if( prefabType == PrefabType.Prefab && view.Components[index] == null)
-                {
-					var instance = FindObjectsOfType<EntityBehaviour>()
-                        .Where(eb => eb.name == view.name).FirstOrDefault();
-					    //.Where(eb => eb.Id == view.Id).FirstOrDefault();
-					if (instance == null)
-					{
-						Debug.Log("unable to find instance. removing at " + index);
-						view.Components.RemoveAt(index);
-						return;
-					}
-
-					Debug.Log("added at " + index);
-					AssetDatabase.AddObjectToAsset(instance.Components[index], view.gameObject);
-                    AssetDatabase.SaveAssets();
-					view.Components[index] = instance.Components[index];
-                }
-
-                //check whether the prefab root has been updated but not the instance...
-                //...and try to force sync our instance to our prefab root
-                if(prefabType == PrefabType.PrefabInstance)
-                {
-					var prefab = PrefabUtility.GetPrefabParent(view.gameObject);
-                    if (prefab == null)
-                    {
-                        //Debug.LogWarning("Unable to find parent prefab. Returning.");
-                        return;
-                    }
-
-                    var prefabView = ((GameObject)prefab).GetComponent<EntityBehaviour>();
-                    if (prefabView == null)
-                    {
-						//Debug.LogWarning("Unable to find view on parent prefab. Returning.");
-						return;
-                    }
-
-                    if(!view.Components.SequenceEqual(prefabView.Components))
-                    {
-                        //Debug.LogWarning("Re-syncing instance to prefab root.");
-						view.Components.Clear();
-						for (var i = 0; i < prefabView.Components.Count; i++)
-						{
-							view.Components.Add(prefabView.Components[i]);
-                            //Debug.LogWarning("Added component at " + i);
-						}
-                        return;
-                    }
-				}
-
-				//the prefab has been deleted, and assets along with it, so reset
-				if (prefabType == PrefabType.MissingPrefabInstance)
-				{
-					Debug.LogWarning("Missing instance. Removing at " + index);
-					view.Components.RemoveAt(index);
-					return;
-				}
-
-                OnDrawElement(reorderableComponents, view.Components[index].GetType().ToString(), rect, index, isActive, isFocused);
-            };
-
-            reorderableComponents.elementHeightCallback = (index) => 
-            { return OnElementHeight(reorderableComponents, index); };
+			reorderableComponents.elementHeightCallback = (index) =>
+			{
+				return componentHeights[index];
+//              return OnElementHeight(reorderableComponents, index);
+			};
 
 			reorderableComponents.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
 			{
-                var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
-                if (prefabType == PrefabType.PrefabInstance)
-                {
-                    Debug.LogWarning("Edit the root prefab rather than the instance!");
-                    return;
-                }
-                OnAddDropdown(rect, list, AddComponent, componentBaseTypes.ToArray());
-            };
+				OnAddDropdown(rect, list, AddComponent, componentBaseTypes.ToArray());
+			};
 
 			reorderableComponents.onRemoveCallback = (list) =>
 			{
-				var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
-				if (prefabType == PrefabType.PrefabInstance)
-				{
-					Debug.LogWarning("Edit the root prefab rather than the instance!");
-					return;
-				}
-                RemoveComponent(list);
-            };
+				RemoveComponent(list);
+			};
 
 
 
@@ -151,129 +90,104 @@ namespace AlphaECS
 			{ EditorGUI.LabelField(rect, "Blueprints", EditorStyles.boldLabel); };
 
 			reorderableBlueprints.drawElementCallback = (rect, index, isActive, isFocused) =>
-            {
-                var label = view.Blueprints[index] != null ? view.Blueprints[index].GetType().ToString() : "None";
-                OnDrawElement(reorderableBlueprints, label, rect, index, isActive, isFocused);
-            };
+			{
+				var label = view.Blueprints[index] != null ? view.Blueprints[index].GetType().ToString() : "None";
+				OnDrawElement(reorderableBlueprints, label, rect, index, isActive, isFocused, blueprintHeights);
+			};
 
 			reorderableBlueprints.elementHeightCallback = (index) =>
-			{ return OnElementHeight(reorderableBlueprints, index); };
+			{
+				return blueprintHeights[index];
+//              return OnElementHeight(reorderableBlueprints, index);
+			};
 
 			reorderableBlueprints.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
-            { OnAddDropdown(list); };
+			{ OnAddDropdown(list, "Blueprints"); };
 
 			reorderableBlueprints.onRemoveCallback = (list) =>
 			{ RemoveBlueprint(list); };
 		}
 
-        private void OnDrawElement(ReorderableList list, string labelName, Rect rect, int index, bool isActive, bool isFocused)
-        {
-			var element = list.serializedProperty.GetArrayElementAtIndex(index);
-
-			EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineHeight), labelName, EditorStyles.boldLabel);
-            EditorGUI.ObjectField(new Rect(rect.x, rect.y + lineHeight, rect.width, lineHeight), element);
-
-			if (element.objectReferenceValue == null)
-			{ return; }
-
-			var so = new SerializedObject(element.objectReferenceValue);
-			so.Update();
-
-			var iterator = so.GetIterator();
-			iterator.NextVisible(true); // skip the script reference
-
-            var i = headerProperties;
-			var showChildren = true;
-			while (iterator.NextVisible(showChildren))
-			{
-				EditorGUI.PropertyField(new Rect(rect.x, rect.y + (lineSpacing * i), rect.width, lineHeight), iterator);
-				i++;
-				if (iterator.isArray)
-				{
-					showChildren = iterator.isExpanded;
-				}
-			}
-
-			so.ApplyModifiedProperties();
-        }
-
-        private float OnElementHeight(ReorderableList list, int index)
-        {
-			float height = 0;
-
-			var element = list.serializedProperty.GetArrayElementAtIndex(index);
-
-            if(element.objectReferenceValue == null)
-            {
-                return headerProperties * lineSpacing;
-			}
-
-            var so = new SerializedObject(element.objectReferenceValue);
-			var iterator = so.GetIterator();
-            var i = headerProperties;
-			var showChildren = true;
-			while (iterator.NextVisible(showChildren))
-			{
-				i++;
-				if (iterator.isArray)
-				{
-					showChildren = iterator.isExpanded;
-				}
-			}
-
-			height = lineSpacing * i;
-			return height;
-        }
-
-        private void OnAddDropdown(Rect rect, ReorderableList list, Action<object> action, Type[] types)
-        {
-			var dropdownMenu = new GenericMenu();
-
-			for (var i = 0; i < types.Length; i++)
-			{
-                dropdownMenu.AddItem(new GUIContent(types[i].ToString()), false, action.Invoke, new ObjectInfo() { type = types.ElementAt(i) });
-			}
-
-			dropdownMenu.ShowAsContext();
-        }
-
-		private void OnAddDropdown(ReorderableList list)
-		{
-            //view.Blueprints.Add(null);
-            var blueprints = list.serializedProperty.serializedObject.FindProperty("Blueprints");
-            blueprints.arraySize += 1;
-        }
-
 		public override void OnInspectorGUI()
-        {
-            if (view == null)
-            { view = (EntityBehaviour)target; }
+		{
+			if (view == null)
+			{ view = (EntityBehaviour)target; }
 
-            base.OnInspectorGUI();
+			base.OnInspectorGUI();
 
-            if (view == null) { return; }
+			if (view == null) { return; }
 
-            DrawHeaderSection();
+			DrawHeaderSection();
 
-            if (showComponents)
-            {
-                if (this.WithIconButton("▾"))
-                { showComponents = false; }
-            }
-            else
-            {
-                if (this.WithIconButton("▸"))
-                { showComponents = true; }
-            }
+            componentToRemove = -1;
 
-            if (showComponents)
-            {
+			if (Application.isPlaying)
+			{
+				if (showComponents)
+				{
+					if (this.WithIconButton("▾"))
+					{ showComponents = false; }
+				}
+				else
+				{
+					if (this.WithIconButton("▸"))
+					{ showComponents = true; }
+				}
+
+				if (showComponents)
+				{
+					for (var i = 0; i < view.Entity.Components.Count(); i++)
+					{
+						var rect = EditorGUILayout.BeginVertical();
+						OnDrawElement(rect, view.Entity.Components.ElementAt(i), i, componentHeights);
+						EditorGUILayout.EndVertical();
+
+                        GUILayoutUtility.GetRect(0f, componentHeights[i] + lineHeight);
+					}
+				}
+
+                if(componentToRemove > -1)
+                {
+                    var component = view.Entity.Components.ElementAt(componentToRemove);
+                    view.Entity.RemoveComponent(component);
+
+                    if (component.GetType().IsSubclassOf(typeof(Component)))
+                    {
+                        Destroy((UnityEngine.Object)component);
+                    }
+				}
+				return;
+			}
+
+			if (showComponents)
+			{
+				if (this.WithIconButton("▾"))
+				{ showComponents = false; }
+			}
+			else
+			{
+				if (this.WithIconButton("▸"))
+				{ showComponents = true; }
+			}
+
+			if (showComponents)
+			{
 				serializedObject.Update();
 				Undo.RecordObject(view, "Added Data");
-
 				reorderableComponents.DoLayoutList();
 				serializedObject.ApplyModifiedProperties();
-            }
+			}
+
+			if (componentToRemove > -1)
+			{
+                view.ComponentTypes.RemoveAt(componentToRemove);
+                view.ComponentData.RemoveAt(componentToRemove);
+
+				//if (component.GetType().IsSubclassOf(typeof(Component)))
+				//{
+				//	Destroy((UnityEngine.Object)component);
+				//}
+			}
 
 			if (showBlueprints)
 			{
@@ -286,36 +200,159 @@ namespace AlphaECS
 				{ showBlueprints = true; }
 			}
 
-            if (showBlueprints)
+			if (showBlueprints)
 			{
 				serializedObject.Update();
 				Undo.RecordObject(view, "Added Data");
-
-				if (!Application.isPlaying)
-				{
-					reorderableBlueprints.DoLayoutList();
-				}
-				else
-				{
-					reorderableBlueprints.DoLayoutList();
-				}
+				reorderableBlueprints.DoLayoutList();
 				serializedObject.ApplyModifiedProperties();
 			}
 
-            if(showComponents || showBlueprints)
-            {
+			if (showComponents || showBlueprints)
+			{
 				PersistChanges();
 			}
-        }
+		}
 
-        private void DrawHeaderSection()
-        {
+        /// <summary>
+        /// Draws an element of type serialized property in a reorderable list
+        /// </summary>
+		private void OnDrawElement(ReorderableList list, string labelName, Rect rect, int index, bool isActive, bool isFocused, float[] heightsArray)
+		{
+			var element = list.serializedProperty.GetArrayElementAtIndex(index);
+
+			EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineHeight), labelName, EditorStyles.boldLabel);
+			EditorGUI.ObjectField(new Rect(rect.x, rect.y + lineHeight, rect.width, lineHeight), element);
+
+			if (element.objectReferenceValue == null)
+			{
+                heightsArray[index] = (headerProperties * lineHeight) + (headerProperties * lineSpacing);
+				return;
+			}
+
+			var so = new SerializedObject(element.objectReferenceValue);
+			so.Update();
+
+			var iterator = so.GetIterator();
+			iterator.NextVisible(true); // skip the script reference
+
+			var i = headerProperties;
+			var showChildren = true;
+			while (iterator.NextVisible(showChildren))
+			{
+                EditorGUI.PropertyField(new Rect(rect.x, rect.y + (i * lineHeight) + (i * lineSpacing), rect.width, lineHeight), iterator);
+				i++;
+				if (iterator.isArray)
+				{
+					showChildren = iterator.isExpanded;
+				}
+			}
+
+			so.ApplyModifiedProperties();
+            heightsArray[index] = (i * lineHeight) + (i * lineSpacing);
+		}
+
+		/// <summary>
+		/// Draws an element of type object in a list
+		/// </summary>
+		private void OnDrawElement(Rect rect, object component, int index, float[] heightsArray)
+		{
+			serializedObject.Update();
+
+			var componentType = component.GetType();
+			var typeName = componentType == null ? "" : componentType.Name;
+			var typeNamespace = componentType == null ? "" : componentType.Namespace;
+			headerProperties = 0;
+
+			if (string.IsNullOrEmpty(typeName))
+			{
+				typeName = "Unknown Type";
+			}
+			EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineHeight), typeName, EditorStyles.boldLabel);
+			headerProperties += 1;
+
+			//EditorGUILayout.BeginHorizontal();
+			if (GUI.Button(new Rect(rect.width, rect.y, lineHeight, lineHeight), "-"))
+			{
+				componentToRemove = index;
+			}
+			//EditorGUILayout.EndHorizontal();
+
+			if (!string.IsNullOrEmpty(typeNamespace))
+			{
+				EditorGUI.LabelField(new Rect(rect.x, rect.y + lineHeight, rect.width, lineHeight), typeNamespace);
+				headerProperties += 1;
+			}
+
+			//EditorGUILayout.Space();
+
+			if (componentType.IsSubclassOf(typeof(UnityEngine.Component)))
+			{
+				heightsArray[index] = (headerProperties * lineHeight) + (headerProperties * lineSpacing);
+                serializedObject.ApplyModifiedProperties();
+				return;
+			}
+
+			var i = headerProperties;
+
+			//draw component fields
+			foreach (var field in component.GetType().GetFields())
+			{
+                var type = field.FieldType;
+                var value = field.GetValue(component);
+				var isTypeSupported = this.TryDrawValue(rect, type, ref value, field.Name, i);
+
+				if (isTypeSupported == true)
+				{
+					field.SetValue(component, value);
+					i++;
+				}
+			}
+
+			//draw component properties
+			foreach (var property in component.GetType().GetProperties())
+			{
+                var type = property.PropertyType;
+                var value = property.GetValue(component, null);
+				var isTypeSupported = this.TryDrawValue(rect, type, ref value, property.Name, i);
+
+				if (isTypeSupported == true)
+				{
+					property.SetValue(component, value, null);
+					i++;
+				}
+			}
+
+			serializedObject.ApplyModifiedProperties();
+			heightsArray[index] = (i * lineHeight) + (i * lineSpacing);
+		}
+
+		private void OnAddDropdown(Rect rect, ReorderableList list, Action<object> action, Type[] types)
+		{
+			var dropdownMenu = new GenericMenu();
+
+			for (var i = 0; i < types.Length; i++)
+			{
+				dropdownMenu.AddItem(new GUIContent(types[i].ToString()), false, action.Invoke, new ObjectInfo() { type = types.ElementAt(i) });
+			}
+
+			dropdownMenu.ShowAsContext();
+		}
+
+		private void OnAddDropdown(ReorderableList list, string elementName)
+		{
+			var element = list.serializedProperty.serializedObject.FindProperty(elementName);
+			element.arraySize += 1;
+		}
+
+		private void DrawHeaderSection()
+		{
 			this.UseVerticalBoxLayout(() =>
 			{
 				if (Application.isPlaying)
-				{	
-                    this.WithLabelField("Id: ", view.Entity.Id.ToString());
-                    this.WithLabelField("Pool: ", view.Pool.Name);
+				{
+					this.WithLabelField("Id: ", view.Entity.Id.ToString());
+					this.WithLabelField("Pool: ", view.Pool.Name);
 				}
 				else
 				{
@@ -328,96 +365,54 @@ namespace AlphaECS
 				EditorGUILayout.LabelField("Remove Entity On Destroy");
 				EditorGUILayout.EndHorizontal();
 
-                if(Application.isPlaying)
-                {
-    				if (GUILayout.Button("Destroy Entity"))
-    				{
-    					view.Pool.RemoveEntity(view.Entity);
-    					Destroy(view.gameObject);
-    				} 
-                }
+				if (Application.isPlaying)
+				{
+					if (GUILayout.Button("Destroy Entity"))
+					{
+						view.Pool.RemoveEntity(view.Entity);
+						Destroy(view.gameObject);
+					}
+				}
 			});
 		}
 
 		private void AddComponent(object info)
 		{
-            var componentInfo = (ObjectInfo)info;
-			var component = (ComponentBase)ScriptableObject.CreateInstance(componentInfo.type);
-            component.name = componentInfo.type.Name;
-            AddComponent(component);
+			var componentInfo = (ObjectInfo)info;
+            var component = (ComponentBase)Activator.CreateInstance(componentInfo.type);
+            var type = component.GetType().ToString();
+            var json = JsonUtility.ToJson(component);
+
+            view.ComponentTypes.Add(type);
+            view.ComponentData.Add(json);
 		}
-
-        private void AddComponent(ComponentBase component)
-        {
-            var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
-            SetHideFlags(prefabType);
-
-			if (prefabType == PrefabType.None)
-			{
-			}
-			else
-			{
-				if (prefabType == PrefabType.Prefab)
-				{
-					AssetDatabase.AddObjectToAsset(component, view.gameObject);
-					AssetDatabase.SaveAssets();
-					//Debug.Log("added asset to prefab root");
-				}
-                else if(prefabType == PrefabType.PrefabInstance)
-				{
-                    var prefab = PrefabUtility.GetPrefabParent(view.gameObject);
-					AssetDatabase.AddObjectToAsset(component, prefab);
-					AssetDatabase.SaveAssets();
-					//Debug.Log("added asset from instance to prefab root");
-				}
-			}
-			view.Components.Add(component);
-        }
 
 		private void RemoveComponent(ReorderableList list)
 		{
-            //SetHideFlags(PrefabUtility.GetPrefabType((view.gameObject)));
-
-			var component = view.Components[list.index];
-            DestroyImmediate(component, true);
-            view.Components.RemoveAt(list.index);
+            view.ComponentTypes.RemoveAt(list.index);
+            view.ComponentData.RemoveAt(list.index);
 		}
 
-        private void AddBlueprint(object info)
-        {
-            var blueprintInfo = (ObjectInfo)info;
-            var blueprint = (BlueprintBase)ScriptableObject.CreateInstance(blueprintInfo.type);
-            blueprint.name = blueprintInfo.type.Name;
-            view.Blueprints.Add(blueprint);
-        }
+		private void AddBlueprint(object info)
+		{
+			var blueprintInfo = (ObjectInfo)info;
+			var blueprint = (BlueprintBase)ScriptableObject.CreateInstance(blueprintInfo.type);
+			blueprint.name = blueprintInfo.type.Name;
+			view.Blueprints.Add(blueprint);
+		}
 
-        private void RemoveBlueprint(ReorderableList list)
-        {
-            //var blueprint = view.Blueprints[list.index];
-            //DestroyImmediate(blueprint, true);
-            view.Blueprints.RemoveAt(list.index);
-        }
+		private void RemoveBlueprint(ReorderableList list)
+		{
+			view.Blueprints.RemoveAt(list.index);
+		}
 
 		private void PersistChanges()
 		{
 			if (GUI.changed && !Application.isPlaying)
 			{
 				this.SaveActiveSceneChanges();
-				AssetDatabase.SaveAssets();
+//              AssetDatabase.SaveAssets();
 			}
 		}
-
-        private void SetHideFlags(PrefabType prefabType)
-        {
-            //Debug.Log(prefabType);
-			if (prefabType == PrefabType.None)
-			{
-				hideFlags = HideFlags.HideAndDontSave;
-			}
-			else
-			{
-				hideFlags = HideFlags.None;
-			}
-        }
 	}
 }

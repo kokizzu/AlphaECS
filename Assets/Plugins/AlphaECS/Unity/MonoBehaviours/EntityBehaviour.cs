@@ -72,8 +72,14 @@ namespace AlphaECS.Unity
 		[SerializeField] [HideInInspector]
 		public bool RemoveEntityOnDestroy = true;
 
+        //[SerializeField] [HideInInspector]
+        //public List<ComponentBase> Components = new List<ComponentBase>();
+
+        [SerializeField] [HideInInspector]
+        public List<string> ComponentTypes = new List<string>();
+
 		[SerializeField] [HideInInspector]
-        public List<ComponentBase> Components = new List<ComponentBase>();
+        public List<string> ComponentData = new List<string>();
 
 		[SerializeField] [HideInInspector]
         public List<BlueprintBase> Blueprints = new List<BlueprintBase>();
@@ -92,23 +98,33 @@ namespace AlphaECS.Unity
 		{
 			base.Setup (eventSystem);
 
-			for (var i = 0; i < Components.Count; i++)
-			{
-                var component = Instantiate(Components[i]);
-				Entity.AddComponent(component);
-			}
-
 			if (!Entity.HasComponent<ViewComponent> ())
 			{
-                var viewComponent = ScriptableObject.CreateInstance<ViewComponent>();
-				viewComponent.Transforms.Add (this.transform);
+                var viewComponent = new ViewComponent();
+				AddTransformToView(viewComponent);
 				Entity.AddComponent (viewComponent);
 			}
 			else
 			{
-				var viewComponent = Entity.GetComponent<ViewComponent> ();
-				viewComponent.Transforms.Add (this.transform);
+				AddTransformToView (Entity.GetComponent<ViewComponent> ());
 			}
+
+            for (var i = 0; i < ComponentTypes.Count(); i++)
+			{
+                var type = ComponentTypes[i].GetTypeWithAssembly();
+                if (type == null) { throw new Exception("Cannot resolve type for [" + ComponentTypes[i] + "]"); }
+
+                var component = (object)Activator.CreateInstance(type);
+                JsonUtility.FromJsonOverwrite(ComponentData[i], component);
+				Entity.AddComponent(component);
+			}
+
+
+			//for (var i = 0; i < Components.Count; i++)
+			//{
+   //             var component = Instantiate(Components[i]);
+			//	Entity.AddComponent(component);
+			//}
 
             foreach(var blueprint in Blueprints)
             {
@@ -154,6 +170,19 @@ namespace AlphaECS.Unity
 			poolToUse.RemoveEntity(Entity);
 
 			base.OnDestroy();
+		}
+
+		private void AddTransformToView(ViewComponent viewComponent)
+		{
+			//ensure that the root EntityBehaviour's transform is first
+			if (Proxy == null)
+			{
+				viewComponent.Transforms.Insert (0, this.transform);
+			}
+			else
+			{
+				viewComponent.Transforms.Add(this.transform);
+			}
 		}
 	}
 }
