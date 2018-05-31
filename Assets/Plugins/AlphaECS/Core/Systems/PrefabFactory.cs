@@ -27,49 +27,52 @@ namespace AlphaECS
 //			return Instantiate(prefab, fastInject, null);
 //		}
 
-		public GameObject Instantiate(GameObject prefab, Transform parent = null, bool fastInject = true)
-		{
-			GameObject gameObject = null;
-			if (fastInject)
-			{
-				var wasActive = prefab.activeSelf;
-				if (wasActive)
-				{
-					#if UNITY_EDITOR
-					Container.DefaultParent.gameObject.SetActive(false);
-					prefab = GameObject.Instantiate (prefab, Container.DefaultParent);
-					#endif
+        //TODO -> add in proper overloads for setting passing in position, rotation, etc
+        public GameObject Instantiate(GameObject prefab, Transform parent = null, bool fastInject = true)
+        {
+            GameObject gameObject = null;
+            if (fastInject)
+            {
+                var wasActive = prefab.activeSelf;
+                if (wasActive)
+                {
+#if UNITY_EDITOR
+                    Container.DefaultParent.gameObject.SetActive(false);
+                    var name = prefab.name;
+                    prefab = GameObject.Instantiate(prefab, Container.DefaultParent);
+                    prefab.name = name;
+#endif
 
-					prefab.SetActive (false);
-				}
-				gameObject = parent == null ? GameObject.Instantiate (prefab) : GameObject.Instantiate (prefab, parent);
+                    prefab.SetActive(false);
+                }
+                gameObject = parent == null ? GameObject.Instantiate(prefab) : GameObject.Instantiate(prefab, parent);
 
-				gameObject.name = prefab.name;
+                gameObject.name = prefab.name;
 
-				Inject (gameObject);
+                Inject(gameObject);
 
-				if (wasActive)
-				{
-					#if UNITY_EDITOR
-					GameObject.Destroy(prefab);
-					Container.DefaultParent.gameObject.SetActive(true);
-					#else
+                if (wasActive)
+                {
+#if UNITY_EDITOR
+                    GameObject.Destroy(prefab);
+                    Container.DefaultParent.gameObject.SetActive(true);
+#else
 					prefab.SetActive(true);
-					#endif
-					gameObject.SetActive (true);
-				}
-			}
-			else
-			{
-				gameObject = parent == null ? Container.InstantiatePrefab (prefab) : Container.InstantiatePrefab (prefab, parent);
-				gameObject.name = prefab.name;
-			}
+#endif
+                    gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                gameObject = parent == null ? Container.InstantiatePrefab(prefab) : Container.InstantiatePrefab(prefab, parent);
+                gameObject.name = prefab.name;
+            }
 
-			if (!gameObject.activeInHierarchy)
-			{ gameObject.ForceEnable (); }
+            if (!gameObject.activeInHierarchy)
+            { gameObject.ForceEnable(); }
 
-			return gameObject;
-		}
+            return gameObject;
+        }
 
         public GameObject Instantiate(IEntity entity, GameObject prefab, Transform parent)
         {
