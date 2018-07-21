@@ -604,14 +604,13 @@ There is one optional system included with the framework that allows you to take
 
 
 ## <a id="example_project"></a>Example Project
-
- - [Survival Shooter](https://github.com/tbriley/AlphaECS.SurvivalShooter)
+- [Survival Shooter](https://github.com/tbriley/AlphaECS.SurvivalShooter)
 
 
 ## <a id="dependencies"></a>Dependencies
-
- - UniRx (required)
- - Zenject (optional)
+- [UniRx](https://github.com/neuecc/UniRx) (Required)
+- [Editor Extensions](https://github.com/tbriley/EditorExtensions) (Required)
+- [Zenject](https://github.com/svermeulen/Zenject) (optional)
 
  The **Core** framework only depends upon UniRx. The **Unity** helper classes and MonoBehaviours that bootstrap your scenes use Zenject, but feel free to create your own unity bridge to consume the core framework if you do not want the dependency.
 
