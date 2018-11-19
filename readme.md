@@ -440,13 +440,13 @@ Instead, we can stop thinking in terms of nice neat objects and inheritance chai
 ```
 public class Health
 {
-	public int StartingHealth;
-	public int CurrentHealth;
+  public int StartingHealth;
+  public int CurrentHealth;
   public bool IsDead;
 }
 ```
 
-That's it. No logic, no methods, no inheritance, nothing. Instead, think about COMPOSING our player out of these core pieces of data. What other pieces of data might our player have? In addition to health, we want our player to be able to shoot:
+That's it. No logic, no methods, no inheritance, nothing. Instead, we compose our player out of these small, core pieces of data. What other pieces of data might our player have? In addition to health, we want our player to be able to shoot:
 
 ```
 public class Shooter
@@ -558,18 +558,33 @@ Systems are where you define your logic, and groups are how you define things li
 
 
 ```
+using System;
+using System.Collections.Generic;
+using AlphaECS;
+using AlphaECS.Unity;
+using UniRx;
+
 public class HealthSystem : SystemBehaviour
 {
-    public override void Setup ()
+    private IGroup healthGroup;
+
+    public override void Initialize(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
     {
+        base.Initialize(eventSystem, poolManager, groupFactory);
+
         // define your group
         // in this example, any entity that has a `Health` component will be added to the group
-        var HealthComponents = GroupFactory.Create(typeof(Health));
+        healthGroup = this.CreateGroup(new HashSet<Type>() { typeof(Health) });
+    }
 
-        // this confusing looking bit of code is just watching for when entities get added to the group
-        // ObserveAdd = watch for additions
-        // Subscribe = do your logic when the entity gets added
-        HealthComponents.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        // watch for when entities get added to the group
+        // OnAdd -> watch for additions
+        // Subscribe -> do your logic when the entity gets added
+        healthGroup.OnAdd().Subscribe (entity =>
         {
           var healthComponent = entity.GetComponent<HealthComponent>()
           healthComponent.CurrentHealth = healthComponent.StartingHealth;
@@ -578,7 +593,107 @@ public class HealthSystem : SystemBehaviour
 }
 ```
 
-For a deeper dive, check out the quick start guide, example project, or give a holler in the gitter channel!
+Our groups are most often defined with a `HashSet` of `Types`. But we can get even more powerful with `Predicates`. For example, if we have a system which only wants to deal with *dead* entities:
+
+```
+using System;
+using System.Collections.Generic;
+using AlphaECS;
+using AlphaECS.Unity;
+using UniRx;
+
+public class DeathFXSystem : SystemBehaviour
+{
+    private IGroup deadPlayers;
+
+    public override void Initialize(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
+    {
+        base.Initialize(eventSystem, poolManager, groupFactory);
+
+        public override void Initialize(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
+        {
+            base.Initialize(eventSystem, poolManager, groupFactory);
+
+            Func<IEntity, IReadOnlyReactiveProperty<bool>> isDead = (IEntity entity) =>
+            {
+                var health = entity.GetComponent<Health>();
+                var isDeadProperty = health.CurrentHealth.DistinctUntilChanged(ch => ch <= 0).ToReactiveProperty();
+                return isDeadProperty;
+            };
+
+            deadPlayers = this.CreateGroup(new HashSet<Type>() { typeof(Health), isDead);
+        }
+    }
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        deadPlayers.OnAdd().Subscribe (entity =>
+        {
+          //do some logic...
+        }).AddTo(this.Disposer);
+
+        deadPlayers.OnRemove().Subscribe (entity =>
+        {
+          //do some logic...
+        }).AddTo(this.Disposer);
+    }
+}
+```
+
+Predicates are a powerful feature that can be used to check conditions above like whether an entity `IsDead`, whether we have a subset of components we want to check for but for some reason don't want to include in the base group definition, or to ensure that some component **isn't** attached to that entity.
+
+**Core Groups**
+
+We'll often find ourselves defining the same sorts of groups over and over again in different systems and can easily pack this into a class, for example:
+
+```
+using AlphaECS;
+using System;
+using UniRx;
+using System.Collections.Generic;
+using AlphaECS.Unity;
+using UnityEngine;
+
+public class PlayableCharacters : Group
+{
+    public override void Initialize(IEventSystem eventSystem, IPoolManager poolManager)
+    {
+        Components = (new HashSet<Type>() { typeof(CharacterComponent), typeof(InputComponent), });
+        base.Initialize(eventSystem, poolManager);
+    }
+}
+
+public class SelectableCharacters : Group
+{
+    public override void Initialize(IEventSystem eventSystem, IPoolManager poolManager)
+    {
+        Components = (new HashSet<Type>() {  typeof(CharacterComponent), typeof(SelectableComponent), });
+
+        Func<IEntity, IReadOnlyReactiveProperty<bool>> isNotForSale = (e) =>
+        {
+            return e.Components.ObserveEveryValueChanged(_ => e.HasComponent<MarketItemViewComponent>() == false).ToReactiveProperty();
+        };
+        Predicates.Add(isNotForSale);
+
+        base.Initialize(eventSystem, poolManager);
+    }
+}
+
+public class BuyableCharacters : Group
+{
+    public override void Initialize(IEventSystem eventSystem, IPoolManager poolManager)
+    {
+        Components = (new HashSet<Type>() { typeof(CharacterData), typeof(MarketItemData), });
+
+        base.Initialize(eventSystem, poolManager);
+    }
+}
+```
+
+You can then bind these at the project or scene level and, using the `Inject` attribute, use them in your systems.
+
 
 ## <a id="quick_start"></a>Quick Start
 
@@ -589,18 +704,24 @@ To feel comfortable with AlphaECS you'll want to be comfortable with a few diffe
 
 In your Unity project:
 - Install AlphaECS, UniRx, and Zenject
-- Create a ProjectContext prefab and put it in a Resources folder. Add `ProjectContext`, `AlphaECSInstaller`, and `ProjectInstaller` components to the prefab and then add setup the installer references:
+- Create a ProjectContext prefab and put it in a Resources folder. Add `ProjectContext`, `AlphaECSInstaller`, and `CoreSystemsInstaller` components to the prefab and then add setup the installer references (`ProjectInstaller` can still be used, but `CoreSystemsInstaller` is the preferred method going forward):
 
-![image](https://cloud.githubusercontent.com/assets/6376639/20701079/fb9243da-b64b-11e6-99ab-0c9b869305a8.png)
+![image](https://user-images.githubusercontent.com/6376639/48686050-4021a480-ebfd-11e8-8f86-11bc341bfa0d.png)
 
- - Add a `SceneContext` and `SceneInstaller` to the root of your scene and setup the installer references:
+- Create systems that inherit from `SystemBehaviour` for your core systems. These are usually things that the entire application will use, like `GameDataSystem`, `SceneLoadingSystem`, `AudioSystem`, etc. Add these behaviours to prefabs and then add the prefabs to the `SystemPrefabs` on the `CoreSystemsInstaller`. They'll automatically be instantiated and setup when the app launches, and you can safely `Inject` them into scene specific systems where needed.
+
+- Add a `SceneContext` and `SceneInstaller` to the root of your scene and setup the installer references:
 
 ![image](https://cloud.githubusercontent.com/assets/6376639/20701169/773484e4-b64c-11e6-9e36-fc218bc45cc0.png)
 
 
-This setup accomplishes a few things. First, when you hit play, AlphaECSInstaller will setup the core systems of the framework for you automatically. Then, project installer will setup the **game specific** systems you've added as prefabs to the Resources/Kernel folder (think InputSystem, SaveSystem, MultiplayerSystem, SceneTransitionSystem, etc) as single instances and marks them as DontDestroyOnLoad. More on how to set these up in the paragraph below. Finally, the scene installer will look for any **scene specific** systems that exist in the scene  (think EnemySystem, PowerUpSystem, ShootingSystem, CameraSystem, etc) and bind them as single instances. Of course, if you're comfortable with code you can skip all of this and implement your own bootstrapping method.
+This setup accomplishes a few things. First, when you hit play, `AlphaECSInstaller` will setup the core systems of the framework for you automatically. Then, the `CoreSystemsInstaller` will setup the **game specific** systems as single instances and mark them as DontDestroyOnLoad. Finally, the scene installer will look for any **scene specific** systems that exist in the scene  (think `EnemySystem`, `PowerUpSystem`, `ShootingSystem`, `CameraSystem`, etc) and bind them as single instances. Of course, if you're comfortable with code you can skip all of this and implement your own bootstrapping method.
 
-There is one optional system included with the framework that allows you to take full advantage of the Unity Editor to compose your entities. It is the EntityBehaviourSystem. To add this to your project, create a new folder under `Resources` called `Kernel`, then create a new prefab there and attach the `EntityBehaviourSystem` component included as one of the **Unity** helper classes.
+To add entities to the scene, we can add an `EntityBehaviour` to any gameobject and nest it under our `SceneContext` root. For better performance, you can setup the references to your scene specific systems and entities in the `SceneInstaller` root, else the installer will grab these references with a GetComponentsInChildren during the bootstrapping phase.
+
+Adding components to entities can be done via initial setup on the `EntityBehaviour`, code, or a combination of both. We've played around a bit with a nice POCO blueprinting system for `EntityBehaviour`, but struggled with too many serialization edge cases in Unity. For now if you want to use your 'scene as configuration' we normally stick to `MonoBehaviours`. That is, derive your components from either `MonoBehaviour` (or the AlphaECS `ComponentBehaviour` class, which includes some helper bits for things like easier observable disposal). Add them to the gameobject you added your `EntityBehaviour` to and when you hit `Play` things should be autmatically wired up for you. Similar to the `SceneInstaller`, if you need faster performance here you can click the `+` button in the `EntityBehaviour` inspector to pre-cache the component references.
+
+You can of course use whichever method you like when building up your entities. We often use `ComponentBehaviour` for components that need references to things like child `Transforms`, then do additional setup in various systems using POCO based components.
 
 
 ## <a id="example_project"></a>Example Project
