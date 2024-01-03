@@ -1,0 +1,11 @@
+{
+    "name": "com.finergames.alphaecs",
+    "displayName": "AlphaECS",
+    "version": "1.0.0",
+    "unity": "2019.1",
+    "description": "",
+    "license": "MIT",
+    "dependencies": {
+        
+    }
+}

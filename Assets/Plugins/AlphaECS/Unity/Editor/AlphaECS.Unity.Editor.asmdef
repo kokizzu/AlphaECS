@@ -1,0 +1,21 @@
+{
+    "name": "AlphaECS.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2fc4bcb3db979b44fbaf30cc341ab19c",
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285",
+        "GUID:7e3f5f1ba1fec9247bdb20d0b4f9f8c1",
+        "GUID:50f27751b46b2314b8dcfa7be621b89b"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
